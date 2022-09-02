@@ -24,3 +24,24 @@ class ThrottleError(Exception):
         self.msg = msg
         diff = int(time.time()) - (last_call or 0)
         super().__init__(f"{msg} - (Remaining cooldown: {diff} ({cooldown}")
+
+
+class ResponseError(Exception):
+    def __init__(
+        self,
+        msg: str,
+        method: str | None = None,
+        status_code: int | None = None,
+    ) -> None:
+        """
+        Raise on failed calls.
+
+        Args:
+            msg: Text of exception message
+            method: Verb of API call (e.g. "POST")
+            status_code: Result of API call
+        """
+        self.method = method
+        self.status_code = status_code
+        self.msg = msg
+        super().__init__(f"[{status_code}] - {str(method).upper()} - {msg}")
