@@ -1,0 +1,122 @@
+[
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=9FZmSiXn",
+        "full_url": "https://pastebin.com/9FZmSiXn",
+        "date": "1662076819",
+        "key": "9FZmSiXn",
+        "size": "101",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "json",
+        "user": "",
+        "hits": "7"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=vNWuPPJw",
+        "full_url": "https://pastebin.com/vNWuPPJw",
+        "date": "1662076561",
+        "key": "vNWuPPJw",
+        "size": "803",
+        "expire": "0",
+        "title": "Player.php",
+        "syntax": "php",
+        "user": "",
+        "hits": "14"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=UFsyNTDg",
+        "full_url": "https://pastebin.com/UFsyNTDg",
+        "date": "1662076406",
+        "key": "UFsyNTDg",
+        "size": "446",
+        "expire": "0",
+        "title": "",
+        "syntax": "yaml",
+        "user": "",
+        "hits": "20"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=57dSFeQZ",
+        "full_url": "https://pastebin.com/57dSFeQZ",
+        "date": "1662075639",
+        "key": "57dSFeQZ",
+        "size": "1397",
+        "expire": "0",
+        "title": "dronemon.lua",
+        "syntax": "lua",
+        "user": "",
+        "hits": "7"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=YyG5iDAf",
+        "full_url": "https://pastebin.com/YyG5iDAf",
+        "date": "1662075618",
+        "key": "YyG5iDAf",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "8"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=cFTr1JQw",
+        "full_url": "https://pastebin.com/cFTr1JQw",
+        "date": "1662075618",
+        "key": "cFTr1JQw",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "8"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=5Rj1ASwT",
+        "full_url": "https://pastebin.com/5Rj1ASwT",
+        "date": "1662075618",
+        "key": "5Rj1ASwT",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "8"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=4WqHnFAy",
+        "full_url": "https://pastebin.com/4WqHnFAy",
+        "date": "1662075618",
+        "key": "4WqHnFAy",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "7"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=iwy9a8YQ",
+        "full_url": "https://pastebin.com/iwy9a8YQ",
+        "date": "1662075617",
+        "key": "iwy9a8YQ",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "7"
+    },
+    {
+        "scrape_url": "https://scrape.pastebin.com/api_scrape_item.php?i=VLbzwy6s",
+        "full_url": "https://pastebin.com/VLbzwy6s",
+        "date": "1662075617",
+        "key": "VLbzwy6s",
+        "size": "85",
+        "expire": "0",
+        "title": "Untitled",
+        "syntax": "csharp",
+        "user": "ShiinaBR",
+        "hits": "7"
+    }
+]

@@ -1,10 +1,12 @@
 """API calls from Pastebin.com"""
 from __future__ import annotations
 
+import logging
 import time
 
 import httpx
 
+from .exceptions import ResponseError
 from .exceptions import ThrottleError
 
 # Cooldown, in seconds, required between scraping
@@ -13,9 +15,14 @@ SCRAPING_THROTTLE = 60
 ITEM_SCRAPING_THROTTLE = 1
 # Cooldown, in seconds, required between item meta scraping
 META_SCRAPING_THROTTLE = 1
+DEFAULT_LIMIT = 100
 
 
 class PastebinAPI:
+
+    logger = logging.getLogger(__name__)
+    base_url = "https://scrape.pastebin.com"
+
     def __init__(self, *, last_call: int | None = None) -> None:
         """
         Create API client for pastebin.
@@ -47,7 +54,8 @@ class PastebinAPI:
 
     def scrape(
         self,
-        limit: int = 100,
+        limit: int | None = None,
+        lang: str | None = None,
         *,
         raise_on_throttle: bool = True,
     ) -> list[dict[str, str]]:
@@ -57,8 +65,11 @@ class PastebinAPI:
         Use the `.can_scrape` property to avoid raising a ThrottleError. If
         the limit is not a valid int, the default is used.
 
+        Language filters supported: https://pastebin.com/doc_api#5
+
         Args:
             limit: Number of posts to return in call. Max 250, default 100.
+            lang: Filter results by language.
             raise_on_throttle: If False and throttled an empty list will be returned.
 
         Returns:
@@ -66,6 +77,7 @@ class PastebinAPI:
 
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
+            ResponseError: Raised if pastebin returns a failure response.
         """
         if not self.can_scrape:
             if raise_on_throttle:
@@ -76,5 +88,18 @@ class PastebinAPI:
                 )
             else:
                 return []
+        limit = limit if limit and limit > 0 and limit < 250 else DEFAULT_LIMIT
+        params = {"limit": str(limit)}
+        params.update({"lang": lang} if lang else {})
 
-        return [{"egg": "egg"}]
+        resp = self._http.get(f"{self.base_url}/api_scraping.php", params=params)
+
+        if not resp.is_success:
+            self.logger.error(
+                "Invalid response on scrape attempt. %s - %s",
+                resp.status_code,
+                resp.text,
+            )
+            raise ResponseError(resp.text, "GET", resp.status_code)
+
+        return resp.json()
