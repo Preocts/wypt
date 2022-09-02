@@ -92,6 +92,8 @@ class PastebinAPI:
         params = {"limit": str(limit)}
         params.update({"lang": lang} if lang else {})
 
+        self.logger.debug("Requesting api_scraping.php with %s params", params)
+
         resp = self._http.get(f"{self.base_url}/api_scraping.php", params=params)
 
         if not resp.is_success:
@@ -101,5 +103,7 @@ class PastebinAPI:
                 resp.text,
             )
             raise ResponseError(resp.text, "GET", resp.status_code)
+
+        self.logger.debug("Discovered %d pastes from request.", len(resp.json()))
 
         return resp.json()
