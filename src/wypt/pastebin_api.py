@@ -5,6 +5,8 @@ import time
 
 import httpx
 
+from .exceptions import ThrottleError
+
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
 # Cooldown, in seconds, required between item scraping
@@ -43,7 +45,12 @@ class PastebinAPI:
         """Determine if enough time has lapsed to allow action."""
         return int(time.time()) - self._last_call >= timeout_seconds
 
-    def scrape(self, limit: int = 100) -> list[dict[str, str]]:
+    def scrape(
+        self,
+        limit: int = 100,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> list[dict[str, str]]:
         """
         Scrape recent posts from pastebin.
 
@@ -52,6 +59,7 @@ class PastebinAPI:
 
         Args:
             limit: Number of posts to return in call. Max 250, default 100.
+            raise_on_throttle: If False and throttled an empty list will be returned.
 
         Returns:
             List of dictionaries
@@ -59,4 +67,14 @@ class PastebinAPI:
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
         """
-        ...
+        if not self.can_scrape:
+            if raise_on_throttle:
+                raise ThrottleError(
+                    "Scrape throttle has not expired",
+                    self._last_call,
+                    SCRAPING_THROTTLE,
+                )
+            else:
+                return []
+
+        return [{"egg": "egg"}]
