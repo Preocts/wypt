@@ -5,6 +5,8 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Preocts/wypt/main.svg)](https://results.pre-commit.ci/latest/github/Preocts/wypt/main)
 [![Python package](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml/badge.svg?branch=main)](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml)
 
+# WIP
+
 Why'd You Paste That (wypt) is a small scraper using pastebin.com's permitted scraping api.
 
 - Requires a Pro account with pastebin.com
