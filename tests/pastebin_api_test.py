@@ -9,6 +9,7 @@ import pytest
 from httpx import Response
 from wypt.exceptions import ResponseError
 from wypt.exceptions import ThrottleError
+from wypt.model import Paste
 from wypt.pastebin_api import PastebinAPI
 
 SCRAPE_RESP = Path("tests/fixture/scrape_resp.json").read_text()
@@ -67,4 +68,5 @@ def test_scrape_returns_on_successful_request(client: PastebinAPI) -> None:
         result = client.scrape()
 
         assert mock_http.call_count == 1
-        assert result == json.loads(SCRAPE_RESP)
+        assert len(result) == len(json.loads(SCRAPE_RESP))
+        assert all([isinstance(r, Paste) for r in result])

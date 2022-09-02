@@ -8,6 +8,7 @@ import httpx
 
 from .exceptions import ResponseError
 from .exceptions import ThrottleError
+from .model import Paste
 
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
@@ -58,7 +59,7 @@ class PastebinAPI:
         lang: str | None = None,
         *,
         raise_on_throttle: bool = True,
-    ) -> list[dict[str, str]]:
+    ) -> list[Paste]:
         """
         Scrape recent posts from pastebin.
 
@@ -73,7 +74,7 @@ class PastebinAPI:
             raise_on_throttle: If False and throttled an empty list will be returned.
 
         Returns:
-            List of dictionaries
+            List of Paste objects.
 
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
@@ -104,6 +105,8 @@ class PastebinAPI:
             )
             raise ResponseError(resp.text, "GET", resp.status_code)
 
-        self.logger.debug("Discovered %d pastes from request.", len(resp.json()))
+        models = [Paste(**paste) for paste in resp.json()]
 
-        return resp.json()
+        self.logger.debug("Discovered %d pastes from request.", len(models))
+
+        return models
