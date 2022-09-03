@@ -1,6 +1,16 @@
-"""API calls from Pastebin.com"""
+"""
+API calls from Pastebin.com
+
+All methods in this function require that your account be Pro and
+allowlisted in pastebin's setup. https://pastebin.com/doc_scraping_api
+
+Scraping endpoints of pastebin do not, generally, return error statuses
+even on invalid requests. Due to this, any error status will raise a
+ResponseError exception.
+"""
 from __future__ import annotations
 
+import json
 import logging
 import time
 
@@ -111,3 +121,97 @@ class PastebinAPI:
         self.logger.debug("Discovered %d pastes from request.", len(models))
 
         return models
+
+    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> str | None:
+        """
+        Scrape a specific post by item key.
+
+        Use the `.can_scrape_item` property to avoid raising a
+        ThrottleError. If the limit is not a valid int, the default is used.
+
+        Args:
+            key: Unique paste key.
+            raise_on_throttle: If False and throttled then None will be returned.
+
+        Returns:
+            String of paste.
+
+        Raises:
+            ThrottleError: Raised if cooldown between pulls is still active.
+            ResponseError: Raised if pastebin returns a failure response.
+        """
+        if not self.can_scrape_item:
+            if raise_on_throttle:
+                raise ThrottleError(
+                    "Item Scrape throttle has not expired",
+                    self._last_call,
+                    ITEM_SCRAPING_THROTTLE,
+                )
+            else:
+                return None
+
+        params = {"i": key}
+
+        self.logger.debug("Requesting api_scraping_item.php with %s params", params)
+
+        resp = self._http.get(f"{self.base_url}/api_scrape_item.php", params=params)
+
+        if not resp.is_success:
+            self.logger.error(
+                "Invalid response on scrape attempt. %s - %s",
+                resp.status_code,
+                resp.text,
+            )
+            raise ResponseError(resp.text, "GET", resp.status_code)
+
+        return resp.text
+
+    def scrape_meta(
+        self,
+        key: str,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> Paste | None:
+        """
+        Scrape meta of a paste by unique paste key.
+
+        Use the `.can_scrape_meta` property to avoid raising a
+        ThrottleError. If the limit is not a valid int, the default is used.
+
+        Args:
+            key: Unique paste key.
+            raise_on_throttle: If False and throttled then None will be returned.
+
+        Returns:
+            A Paste object or None.
+
+        Raises:
+            ThrottleError: Raised if cooldown between pulls is still active.
+            ResponseError: Raised if pastebin returns a failure response.
+        """
+        if not self.can_scrape_item:
+            if raise_on_throttle:
+                raise ThrottleError(
+                    "Item Scrape throttle has not expired",
+                    self._last_call,
+                    ITEM_SCRAPING_THROTTLE,
+                )
+            else:
+                return None
+
+        params = {"i": key}
+
+        self.logger.debug("Requesting api_scraping_meta.php with %s params", params)
+
+        resp = self._http.get(f"{self.base_url}/api_scrape_item.php", params=params)
+
+        # We don't check status here as we use a try/except to catch errors
+        try:
+            return Paste(**resp.json())
+        except (TypeError, json.JSONDecodeError):
+            self.logger.error(
+                "Invalid response on scrape attempt. %s - %s",
+                resp.status_code,
+                resp.text,
+            )
+            raise ResponseError(resp.text, "GET", resp.status_code)

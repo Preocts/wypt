@@ -48,7 +48,7 @@ def test_scrape_returns_emtpy_on_raise_disabled(throttled_client: PastebinAPI) -
     assert result == []
 
 
-def test_scrape_raises_response_error_on_failed_request(client: PastebinAPI) -> None:
+def test_scrape_raises_response_error_on_failure(client: PastebinAPI) -> None:
     resp = Response(404)
 
     with patch.object(client._http, "get", return_value=resp) as mock_http:
@@ -59,7 +59,7 @@ def test_scrape_raises_response_error_on_failed_request(client: PastebinAPI) -> 
         assert mock_http.call_count == 1
 
 
-def test_scrape_returns_on_successful_request(client: PastebinAPI) -> None:
+def test_scrape_returns_on_success(client: PastebinAPI) -> None:
 
     resp = Response(200, content=SCRAPE_RESP)
 
@@ -72,3 +72,77 @@ def test_scrape_returns_on_successful_request(client: PastebinAPI) -> None:
         assert len(result) == len(json.loads(SCRAPE_RESP))
         assert all([isinstance(r, Paste) for r in result])
         assert kwargs["params"]["lang"] == "json"
+
+
+def test_scrape_item_raises_throttle_error(throttled_client: PastebinAPI) -> None:
+    with pytest.raises(ThrottleError):
+        throttled_client.scrape_item("mock")
+
+
+def test_scrape_item_returns_emtpy_on_raise_disabled(
+    throttled_client: PastebinAPI,
+) -> None:
+    result = throttled_client.scrape_item("mock", raise_on_throttle=False)
+
+    assert result is None
+
+
+def test_scrape_item_raises_response_error_on_failure(client: PastebinAPI) -> None:
+    resp = Response(404)
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        with pytest.raises(ResponseError):
+            client.scrape_item("mock")
+
+        assert mock_http.call_count == 1
+
+
+def test_scrape_item_returns_on_success(client: PastebinAPI) -> None:
+
+    resp = Response(200, content=SCRAPE_RESP)
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        result = client.scrape_item("mock")
+
+        assert mock_http.call_count == 1
+        assert result == SCRAPE_RESP
+
+
+def test_scrape_meta_raises_throttle_error(throttled_client: PastebinAPI) -> None:
+    with pytest.raises(ThrottleError):
+        throttled_client.scrape_meta("mock")
+
+
+def test_scrape_meta_returns_emtpy_on_raise_disabled(
+    throttled_client: PastebinAPI,
+) -> None:
+    result = throttled_client.scrape_meta("mock", raise_on_throttle=False)
+
+    assert result is None
+
+
+def test_scrape_meta_raises_response_error_on_failure(client: PastebinAPI) -> None:
+    resp = Response(404)
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        with pytest.raises(ResponseError):
+            client.scrape_meta("mock")
+
+        assert mock_http.call_count == 1
+
+
+def test_scrape_meta_returns_on_success(client: PastebinAPI) -> None:
+
+    resps = json.loads(SCRAPE_RESP)
+    resp = Response(200, content=json.dumps(resps[0]))
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        result = client.scrape_meta("mock")
+
+        assert mock_http.call_count == 1
+        assert result
+        assert result.to_dict() == resps[0]
