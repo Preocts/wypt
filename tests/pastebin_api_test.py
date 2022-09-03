@@ -65,8 +65,10 @@ def test_scrape_returns_on_successful_request(client: PastebinAPI) -> None:
 
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
-        result = client.scrape()
+        result = client.scrape(lang="json")
+        kwargs = mock_http.call_args.kwargs
 
         assert mock_http.call_count == 1
         assert len(result) == len(json.loads(SCRAPE_RESP))
         assert all([isinstance(r, Paste) for r in result])
+        assert kwargs["params"]["lang"] == "json"

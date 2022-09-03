@@ -91,7 +91,8 @@ class PastebinAPI:
                 return []
         limit = limit if limit and limit > 0 and limit < 250 else DEFAULT_LIMIT
         params = {"limit": str(limit)}
-        params.update({"lang": lang} if lang else {})
+        if lang:
+            params.update({"lang": lang})
 
         self.logger.debug("Requesting api_scraping.php with %s params", params)
 
