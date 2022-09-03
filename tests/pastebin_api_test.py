@@ -146,3 +146,15 @@ def test_scrape_meta_returns_on_success(client: PastebinAPI) -> None:
         assert mock_http.call_count == 1
         assert result
         assert result.to_dict() == resps[0]
+
+
+def test_scrape_meta_returns_none_on_invalid_success(client: PastebinAPI) -> None:
+
+    resp = Response(200, content="something went wrong")
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        result = client.scrape_meta("mock")
+
+        assert mock_http.call_count == 1
+        assert result is None
