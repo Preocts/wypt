@@ -7,7 +7,6 @@ import time
 class ThrottleError(Exception):
     def __init__(
         self,
-        msg: str,
         last_call: int | None = None,
         cooldown: int | None = None,
     ) -> None:
@@ -21,9 +20,10 @@ class ThrottleError(Exception):
         """
         self.last_call = last_call
         self.cooldown = cooldown
-        self.msg = msg
+        self.msg = "Item Scrape throttle has not expired"
+
         diff = int(time.time()) - (last_call or 0)
-        super().__init__(f"{msg} - (Remaining cooldown: {diff} ({cooldown}")
+        super().__init__(f"{self.msg} - (Remaining cooldown: {diff} ({cooldown}")
 
 
 class ResponseError(Exception):

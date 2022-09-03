@@ -92,11 +92,7 @@ class PastebinAPI:
         """
         if not self.can_scrape:
             if raise_on_throttle:
-                raise ThrottleError(
-                    "Scrape throttle has not expired",
-                    self._last_call,
-                    SCRAPING_THROTTLE,
-                )
+                raise ThrottleError(self._last_call, SCRAPING_THROTTLE)
             else:
                 return []
         limit = limit if limit and limit > 0 and limit < 250 else DEFAULT_LIMIT
@@ -142,11 +138,7 @@ class PastebinAPI:
         """
         if not self.can_scrape_item:
             if raise_on_throttle:
-                raise ThrottleError(
-                    "Item Scrape throttle has not expired",
-                    self._last_call,
-                    ITEM_SCRAPING_THROTTLE,
-                )
+                raise ThrottleError(self._last_call, ITEM_SCRAPING_THROTTLE)
             else:
                 return None
 
@@ -191,11 +183,7 @@ class PastebinAPI:
         """
         if not self.can_scrape_item:
             if raise_on_throttle:
-                raise ThrottleError(
-                    "Item Scrape throttle has not expired",
-                    self._last_call,
-                    ITEM_SCRAPING_THROTTLE,
-                )
+                raise ThrottleError(self._last_call, META_SCRAPING_THROTTLE)
             else:
                 return None
 
