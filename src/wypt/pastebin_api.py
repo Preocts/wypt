@@ -94,7 +94,7 @@ class PastebinAPI:
         if not self._can_run_action(SCRAPING_THROTTLE, raise_on_throttle):
             return []
 
-        limit = limit if limit and limit > 0 and limit < 250 else DEFAULT_LIMIT
+        limit = limit if limit and 0 < limit <= 250 else DEFAULT_LIMIT
         params = {"limit": str(limit)}
         if lang:
             params.update({"lang": lang})
