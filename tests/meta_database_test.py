@@ -48,10 +48,11 @@ def test_insert_row(db: MetaDatabase, paste: Paste) -> None:
 
 
 def test_insert_many_with_one_failure(db: MetaDatabase, pastes: list[Paste]) -> None:
+    expected_len = len(pastes)
     pastes.append(pastes[0])  # create a duplicate
 
     results = db.insert_many(pastes)
 
-    assert db.row_count == len(pastes) - 1
+    assert db.row_count == expected_len
     assert len(results) == 1
-    assert results[0] == len(pastes) - 1  # Last entry is duplicate
+    assert results[0] == expected_len  # Last entry is duplicate

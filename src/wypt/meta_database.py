@@ -54,20 +54,8 @@ class MetaDatabase:
 
     def insert(self, paste: Paste) -> bool:
         """Insert paste into table, returns false on failure."""
-        paste_dict = paste.to_dict()
-        columns = ",".join(list(paste_dict.keys()))
-        values_ph = ",".join(["?" for _ in paste_dict.keys()])
-
-        sql = f"INSERT INTO pastemeta ({columns}) VALUES({values_ph})"
-        values = list(paste_dict.values())
-
-        with self.cursor(commit_on_exit=True) as cursor:
-            try:
-                cursor.execute(sql, values)
-            except IntegrityError:
-                self.logger.warning("Integrity Error, '%s' exists.", paste.key)
-                return False
-        return True
+        # If insert_many returns no failues, insert had success.
+        return not (self.insert_many([paste]))
 
     def insert_many(self, pastes: Sequence[Paste]) -> tuple[int, ...]:
         """Insert many pastes into table, returns index of failures if any."""
