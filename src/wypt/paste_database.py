@@ -10,7 +10,7 @@ class PasteDatabase(Database):
     def __init__(
         self,
         db_file: str = ":memory:",
-        sql_file: str = "paste_database_tbl.sql",
+        sql_file: str = "tables/paste_database_tbl.sql",
         table_name: str = "paste",
     ) -> None:
         self.sql_file = sql_file

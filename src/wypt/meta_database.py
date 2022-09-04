@@ -10,7 +10,7 @@ class MetaDatabase(Database):
     def __init__(
         self,
         db_file: str = ":memory:",
-        sql_file: str = "meta_database_tbl.sql",
+        sql_file: str = "tables/meta_database_tbl.sql",
         table_name: str = "pastemeta",
     ) -> None:
         self.sql_file = sql_file
