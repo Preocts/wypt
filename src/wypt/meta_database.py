@@ -6,7 +6,10 @@ from contextlib import contextmanager
 from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Cursor
+from sqlite3 import IntegrityError
 from typing import Generator
+
+from .model import Paste
 
 
 class MetaDatabase:
@@ -40,3 +43,19 @@ class MetaDatabase:
             if commit_on_exit:
                 self._dbconn.commit()
             cursor.close()
+
+    def insert(self, paste: Paste) -> bool:
+        """Insert paste into table, returns false on failure."""
+        paste_dict = paste.to_dict()
+        columns = ",".join(list(paste_dict.keys()))
+        values = list(paste_dict.values())
+        values_ph = ",".join(["?" for _ in values])
+        sql = f"INSERT INTO pastemeta ({columns}) VALUES({values_ph})"
+
+        with self.cursor(commit_on_exit=True) as cursor:
+            try:
+                cursor.execute(sql, values)
+            except IntegrityError:
+                self.logger.warning("Integrity Error, '%s' exists.", paste.key)
+                return False
+        return True
