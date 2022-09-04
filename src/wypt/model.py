@@ -20,6 +20,12 @@ class BaseModel:
 
 @dataclasses.dataclass
 class Paste(BaseModel):
+    """
+    Model data from the `pastemeta` table.
+
+    NOTE: Order of attributes is important and should match the respective table.
+    """
+
     scrape_url: str
     full_url: str
     date: str
