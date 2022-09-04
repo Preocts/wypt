@@ -1,7 +1,6 @@
 """Store meta data of pastes."""
 from __future__ import annotations
 
-import logging
 from sqlite3 import IntegrityError
 from typing import Sequence
 
@@ -11,7 +10,6 @@ from .model import Paste
 
 class MetaDatabase(Database):
 
-    logger = logging.getLogger(__name__)
     sql_file = "meta_database_tbl.sql"
     table_name = "pastemeta"
 
