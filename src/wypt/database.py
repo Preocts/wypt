@@ -6,9 +6,10 @@ from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Cursor
 from sqlite3 import IntegrityError
-from typing import Any
 from typing import Generator
 from typing import Sequence
+
+from .model import BaseModel
 
 
 class Database:
@@ -48,20 +49,21 @@ class Database:
                 self._dbconn.commit()
             cursor.close()
 
-    def _insert(self, row_data: dict[str, Any]) -> bool:
+    def insert(self, row_data: BaseModel) -> bool:
         """Insert paste into table, returns false on failure."""
         # If insert_many returns no failues, insert had success.
-        return not (self._insert_many([row_data]))
+        return not (self.insert_many([row_data]))
 
-    def _insert_many(self, rows: Sequence[dict[str, Any]]) -> tuple[int, ...]:
+    def insert_many(self, rows: Sequence[BaseModel]) -> tuple[int, ...]:
         """Insert many pastes into table, returns index of failures if any."""
-        columns = ",".join(list(rows[0].keys()))
-        values_ph = ",".join(["?" for _ in rows[0].keys()])
+        model_dct = rows[0].to_dict()
+        columns = ",".join(list(model_dct.keys()))
+        values_ph = ",".join(["?" for _ in model_dct.keys()])
         failures: list[int] = []
 
         for idx, row in enumerate(rows):
 
-            values = list(row.values())
+            values = list(row.to_dict().values())
             sql = f"INSERT INTO {self.table_name} ({columns}) VALUES({values_ph})"
 
             with self.cursor(commit_on_exit=True) as cursor:
