@@ -185,6 +185,7 @@ class PastebinAPI:
         url = f"{self.base_url}/{route}"
         self.logger.debug("GET - %s - with %s", url, params)
         resp = self._http.get(url, params=params)
+        self._last_call = int(time.time())
 
         if not resp.is_success:
             self._response_error(resp.text, resp.status_code)
