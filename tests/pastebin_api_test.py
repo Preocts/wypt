@@ -9,7 +9,8 @@ import pytest
 from httpx import Response
 from wypt.exceptions import ResponseError
 from wypt.exceptions import ThrottleError
-from wypt.model import Paste
+from wypt.model import PasteMeta
+from wypt.pastebin_api import DEFAULT_LIMIT
 from wypt.pastebin_api import PastebinAPI
 
 SCRAPE_RESP = Path("tests/fixture/scrape_resp.json").read_text()
@@ -70,8 +71,30 @@ def test_scrape_returns_on_success(client: PastebinAPI) -> None:
 
         assert mock_http.call_count == 1
         assert len(result) == len(json.loads(SCRAPE_RESP))
-        assert all([isinstance(r, Paste) for r in result])
+        assert all([isinstance(r, PasteMeta) for r in result])
         assert kwargs["params"]["lang"] == "json"
+
+
+@pytest.mark.parametrize(
+    ("limit", "expected"),
+    (
+        (None, DEFAULT_LIMIT),
+        (100, 100),
+        (1, 1),
+        (250, 250),
+        (0, DEFAULT_LIMIT),
+        (251, DEFAULT_LIMIT),
+    ),
+)
+def test_scrape_limits(client: PastebinAPI, limit: int | None, expected: int) -> None:
+    resp = Response(200, content=SCRAPE_RESP)
+
+    with patch.object(client._http, "get", return_value=resp) as mock_http:
+
+        _ = client.scrape(limit=limit)
+        kwargs = mock_http.call_args.kwargs
+
+        assert kwargs["params"]["limit"] == str(expected)
 
 
 def test_scrape_item_raises_throttle_error(throttled_client: PastebinAPI) -> None:
