@@ -9,7 +9,7 @@ import pytest
 from httpx import Response
 from wypt.exceptions import ResponseError
 from wypt.exceptions import ThrottleError
-from wypt.model import Paste
+from wypt.model import PasteMeta
 from wypt.pastebin_api import DEFAULT_LIMIT
 from wypt.pastebin_api import PastebinAPI
 
@@ -71,7 +71,7 @@ def test_scrape_returns_on_success(client: PastebinAPI) -> None:
 
         assert mock_http.call_count == 1
         assert len(result) == len(json.loads(SCRAPE_RESP))
-        assert all([isinstance(r, Paste) for r in result])
+        assert all([isinstance(r, PasteMeta) for r in result])
         assert kwargs["params"]["lang"] == "json"
 
 

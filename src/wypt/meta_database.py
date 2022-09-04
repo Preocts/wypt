@@ -4,7 +4,7 @@ from __future__ import annotations
 from typing import Sequence
 
 from .database import Database
-from .model import Paste
+from .model import PasteMeta
 
 
 class MetaDatabase(Database):
@@ -20,8 +20,8 @@ class MetaDatabase(Database):
         self.table_name = table_name
         super().__init__(db_file)
 
-    def insert(self, paste: Paste) -> bool:
+    def insert(self, paste: PasteMeta) -> bool:
         return self._insert(paste.to_dict())
 
-    def insert_many(self, pastes: Sequence[Paste]) -> tuple[int, ...]:
+    def insert_many(self, pastes: Sequence[PasteMeta]) -> tuple[int, ...]:
         return self._insert_many([paste.to_dict() for paste in pastes])

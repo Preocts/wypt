@@ -5,11 +5,11 @@ from pathlib import Path
 
 import pytest
 from wypt.model import BaseModel
-from wypt.model import Paste
+from wypt.model import PasteMeta
 
 
 @pytest.mark.parametrize(
-    ("fixture", "model"), (("tests/fixture/scrape_resp.json", Paste),)
+    ("fixture", "model"), (("tests/fixture/scrape_resp.json", PasteMeta),)
 )
 def test_model_create_and_deconstruct(fixture: str, model: BaseModel) -> None:
     resps = json.loads(Path(fixture).read_text())

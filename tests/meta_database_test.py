@@ -6,7 +6,7 @@ from random import choice
 
 import pytest
 from wypt.meta_database import MetaDatabase
-from wypt.model import Paste
+from wypt.model import PasteMeta
 
 
 PASTES = Path("tests/fixture/scrape_resp.json").read_text()
@@ -18,12 +18,12 @@ def db() -> MetaDatabase:
 
 
 @pytest.fixture
-def pastes() -> list[Paste]:
-    return [Paste(**p) for p in json.loads(PASTES)]
+def pastes() -> list[PasteMeta]:
+    return [PasteMeta(**p) for p in json.loads(PASTES)]
 
 
 @pytest.fixture
-def paste(pastes: list[Paste]) -> Paste:
+def paste(pastes: list[PasteMeta]) -> PasteMeta:
     return choice(pastes)
 
 
@@ -37,7 +37,7 @@ def test_init_creates_table(db: MetaDatabase) -> None:
     assert result[0] == 0
 
 
-def test_insert_row(db: MetaDatabase, paste: Paste) -> None:
+def test_insert_row(db: MetaDatabase, paste: PasteMeta) -> None:
     initial = db.insert(paste)
     duplicate = db.insert(paste)
     row_count = db.row_count
@@ -47,7 +47,9 @@ def test_insert_row(db: MetaDatabase, paste: Paste) -> None:
     assert row_count == 1
 
 
-def test_insert_many_with_one_failure(db: MetaDatabase, pastes: list[Paste]) -> None:
+def test_insert_many_with_one_failure(
+    db: MetaDatabase, pastes: list[PasteMeta]
+) -> None:
     expected_len = len(pastes)
     pastes.append(pastes[0])  # create a duplicate
 

@@ -1,4 +1,4 @@
--- Order of table columns much match the `Paste` dataclass model.
+-- Order of table columns much match the `PasteMeta` dataclass model.
 CREATE TABLE IF NOT EXISTS pastemeta (
     scrape_url text NOT NULL,
     full_url text NOT NULL,

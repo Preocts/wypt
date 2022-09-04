@@ -4,7 +4,7 @@ from __future__ import annotations
 import dataclasses
 import json
 
-__all__ = ["Paste"]
+__all__ = ["PasteMeta"]
 
 
 @dataclasses.dataclass
@@ -19,7 +19,7 @@ class BaseModel:
 
 
 @dataclasses.dataclass
-class Paste(BaseModel):
+class PasteMeta(BaseModel):
     """
     Model data from the `pastemeta` table.
 
