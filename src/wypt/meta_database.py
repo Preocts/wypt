@@ -21,7 +21,9 @@ class MetaDatabase(Database):
         super().__init__(db_file)
 
     def insert(self, paste: PasteMeta) -> bool:
+        """Insert paste into table, returns false on failure."""
         return self._insert(paste.to_dict())
 
     def insert_many(self, pastes: Sequence[PasteMeta]) -> tuple[int, ...]:
+        """Insert many pastes into table, returns index of failures if any."""
         return self._insert_many([paste.to_dict() for paste in pastes])
