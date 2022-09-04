@@ -40,6 +40,18 @@ def test_init_creates_table(db: MetaDatabase) -> None:
 def test_insert_row(db: MetaDatabase, paste: Paste) -> None:
     initial = db.insert(paste)
     duplicate = db.insert(paste)
+    row_count = db.row_count
 
     assert initial is True
     assert duplicate is False
+    assert row_count == 1
+
+
+def test_insert_many_with_one_failure(db: MetaDatabase, pastes: list[Paste]) -> None:
+    pastes.append(pastes[0])  # create a duplicate
+
+    results = db.insert_many(pastes)
+
+    assert db.row_count == len(pastes) - 1
+    assert len(results) == 1
+    assert results[0] == len(pastes) - 1  # Last entry is duplicate
