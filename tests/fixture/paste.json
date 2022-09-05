@@ -1,10 +1,12 @@
 [
     {
         "key": "x",
-        "content": "Hello there"
+        "content": "Hello there",
+        "captured_on": "123456789"
     },
     {
         "key": "y",
-        "content": "General Kenobi"
+        "content": "General Kenobi",
+        "captured_on": "123456789"
     }
 ]
