@@ -40,6 +40,7 @@ def test_init_creates_table(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
 def test_insert_row(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
     db, metas = dbf
     meta = choice(metas)
+
     initial = db.insert(meta)
     duplicate = db.insert(meta)
     row_count = db.row_count
@@ -47,6 +48,7 @@ def test_insert_row(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
     assert initial is True
     assert duplicate is False
     assert row_count == 1
+    assert db.contains(meta.key)
 
 
 def test_insert_many_with_failure(dbf: tuple[Database, Sequence[BaseModel]]) -> None:

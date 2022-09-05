@@ -49,6 +49,14 @@ class Database:
                 self._dbconn.commit()
             cursor.close()
 
+    def contains(self, key: str) -> bool:
+        """True if database contains given key."""
+        sql = f"SELECT count(*) FROM {self.table_name} WHERE key=?"
+        with self.cursor() as cursor:
+            cursor.execute(sql, (key,))
+            result = cursor.fetchone()
+        return bool(result[0])
+
     def insert(self, row_data: BaseModel) -> bool:
         """Insert paste into table, returns false on failure."""
         # If insert_many returns no failues, insert had success.
