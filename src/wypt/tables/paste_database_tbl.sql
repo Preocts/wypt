@@ -5,4 +5,4 @@ CREATE TABLE IF NOT EXISTS paste (
 );
 
 -- Create a unique index on the paste key
-CREATE UNIQUE INDEX paste_key ON paste(key);
+CREATE UNIQUE INDEX IF NOT EXISTS paste_key ON paste(key);
