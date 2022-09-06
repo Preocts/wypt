@@ -25,9 +25,9 @@ from .model import PasteMeta
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
 # Cooldown, in seconds, required between item scraping
-ITEM_THROTTLE = 1
+ITEM_THROTTLE = 2
 # Cooldown, in seconds, required between item meta scraping
-META_THROTTLE = 1
+META_THROTTLE = 2
 DEFAULT_LIMIT = 100
 
 
@@ -127,7 +127,7 @@ class PastebinAPI:
             return None
 
         params = {"i": key}
-        resp = self._get_request("api_scraping_item.php", params)
+        resp = self._get_request("api_scrape_item.php", params)
         return Paste(key, resp.text, str(int(time.time())))
 
     def scrape_meta(
@@ -158,7 +158,7 @@ class PastebinAPI:
 
         params = {"i": key}
 
-        resp = self._get_request("api_scraping_meta.php", params)
+        resp = self._get_request("api_scrape_item_meta.php", params)
 
         try:
             return PasteMeta(**resp.json())
