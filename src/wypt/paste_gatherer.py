@@ -23,6 +23,7 @@ class PasteGatherer:
         self._api = PastebinAPI()
         self._meta = MetaDatabase(dbconn)
         self._paste = PasteDatabase(dbconn)
+        self._remaining_flag = False
 
     def run(self) -> None:
         """Run main gather loop. CTRL + C to exit loop."""
@@ -38,7 +39,7 @@ class PasteGatherer:
         while "dreams flow":
             if self._api.can_scrape:
                 self._run_scrape()
-            if self._api.can_scrape_item:
+            if self._remaining_flag and self._api.can_scrape_item:
                 self._run_scrape_item()
 
     def _run_scrape(self) -> None:
@@ -58,6 +59,7 @@ class PasteGatherer:
             prior_count,
             final_count,
         )
+        self._remaining_flag = prior_count != self._meta.row_count
 
     def _run_scrape_item(self) -> None:
         """Scrape pastes from meta table that have not been collected."""
@@ -68,14 +70,17 @@ class PasteGatherer:
             if result is None:
                 return
 
+            remaining = self._meta.to_gather_count
+
             self.logger.info(
                 "Downloaded paste content for key %s (size: %d) - remaining: %d",
                 key[0],
                 len(result.content),
-                self._meta.to_gather_count,
+                remaining,
             )
 
             self._paste.insert(result)
+            self._remaining_flag = bool(remaining)
 
 
 if __name__ == "__main__":
