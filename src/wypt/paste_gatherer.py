@@ -4,6 +4,7 @@ Gather paste meta from pastebin.
 from __future__ import annotations
 
 import logging
+from sqlite3 import Connection
 
 from .meta_database import MetaDatabase
 from .pastebin_api import PastebinAPI
@@ -16,9 +17,10 @@ class PasteGatherer:
 
     def __init__(self, database_file: str = "wypt_db.sqlite3") -> None:
         """Initialize connection to pastebin and database."""
+        dbconn = Connection(database_file)
+
         self._api = PastebinAPI()
-        self._meta = MetaDatabase(database_file)
-        self._fetch_flag = False
+        self._meta = MetaDatabase(dbconn)
 
     def run(self) -> None:
         """Run main gather loop. CTRL + C to exit loop."""
@@ -45,8 +47,6 @@ class PasteGatherer:
             self._meta.insert_many(results)
 
         final_count = self._meta.row_count
-        if final_count > prior_count:
-            self._fetch_flag = True
 
         self.logger.info(
             "Discovered %d - Prior count %d - Current count %d",
