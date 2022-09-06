@@ -5,15 +5,15 @@
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Preocts/wypt/main.svg)](https://results.pre-commit.ci/latest/github/Preocts/wypt/main)
 [![Python package](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml/badge.svg?branch=main)](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml)
 
-# WIP
+# WORK IN PROGRESS
 
 Why'd You Paste That (wypt) is a small scraper using pastebin.com's permitted scraping api.
 
 - Requires a Pro account with pastebin.com
 - Your IP must be allow listed [here](https://pastebin.com/doc_scraping_api).
-- Limit:
+- Limits:
   - 1 action of fetching recent 100 public pastes per minute
-  - 1 HTTP request action per second
+  - 1 HTTP request action per second (we run every 2 seconds)
 
 ## Requirements
 
