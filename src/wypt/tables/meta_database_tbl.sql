@@ -13,6 +13,6 @@ CREATE TABLE IF NOT EXISTS pastemeta (
 );
 
 -- Create a unique index on the paste_key
-CREATE UNIQUE INDEX paste_key ON pastemeta(key);
+CREATE UNIQUE INDEX IF NOT EXISTS paste_key ON pastemeta(key);
 -- Create an index on the syntax flag for searching
-CREATE INDEX syntax_flag ON pastemeta(syntax);
+CREATE INDEX IF NOT EXISTS syntax_flag ON pastemeta(syntax);

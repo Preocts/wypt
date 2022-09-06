@@ -4,11 +4,19 @@ from __future__ import annotations
 import dataclasses
 import json
 
-__all__ = ["PasteMeta"]
+__all__ = [
+    "BaseModel",
+    "PasteMeta",
+    "Paste",
+]
 
 
 @dataclasses.dataclass(frozen=True)
 class BaseModel:
+    """Base model for all data models."""
+
+    key: str
+
     def to_dict(self) -> dict[str, str]:
         """Convert model to a dictionary."""
         return dataclasses.asdict(self)
@@ -48,3 +56,4 @@ class Paste(BaseModel):
 
     key: str
     content: str
+    captured_on: str

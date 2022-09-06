@@ -17,9 +17,9 @@ class Database:
     sql_file: str
     table_name: str
 
-    def __init__(self, db_file: str = ":memory:") -> None:
+    def __init__(self, database_connection: Connection) -> None:
         """Provide target file for database. Default uses memory."""
-        self._dbconn = Connection(db_file)
+        self._dbconn = database_connection
 
         self._create_table()
 
@@ -48,6 +48,14 @@ class Database:
             if commit_on_exit:
                 self._dbconn.commit()
             cursor.close()
+
+    def contains(self, key: str) -> bool:
+        """True if database contains given key."""
+        sql = f"SELECT count(*) FROM {self.table_name} WHERE key=?"
+        with self.cursor() as cursor:
+            cursor.execute(sql, (key,))
+            result = cursor.fetchone()
+        return bool(result[0])
 
     def insert(self, row_data: BaseModel) -> bool:
         """Insert paste into table, returns false on failure."""

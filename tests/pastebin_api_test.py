@@ -130,7 +130,9 @@ def test_scrape_item_returns_on_success(client: PastebinAPI) -> None:
         result = client.scrape_item("mock")
 
         assert mock_http.call_count == 1
-        assert result == SCRAPE_RESP
+        assert result
+        assert result.key == "mock"
+        assert result.content == SCRAPE_RESP
 
 
 def test_scrape_meta_raises_throttle_error(throttled_client: PastebinAPI) -> None:

@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any
 
 import pytest
+from wypt.model import BaseModel
 from wypt.model import Paste
 from wypt.model import PasteMeta
 
@@ -16,7 +16,7 @@ from wypt.model import PasteMeta
         ("tests/fixture/paste.json", Paste),
     ),
 )
-def test_model_create_and_deconstruct(fixture: str, model: Any) -> None:
+def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> None:
     resps = json.loads(Path(fixture).read_text())
 
     for resp in resps:

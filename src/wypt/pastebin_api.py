@@ -19,14 +19,15 @@ import httpx
 
 from .exceptions import ResponseError
 from .exceptions import ThrottleError
+from .model import Paste
 from .model import PasteMeta
 
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
 # Cooldown, in seconds, required between item scraping
-ITEM_THROTTLE = 1
+ITEM_THROTTLE = 2
 # Cooldown, in seconds, required between item meta scraping
-META_THROTTLE = 1
+META_THROTTLE = 2
 DEFAULT_LIMIT = 100
 
 
@@ -104,7 +105,7 @@ class PastebinAPI:
         self.logger.debug("Discovered %d pastes from request.", len(models))
         return models
 
-    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> str | None:
+    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> Paste | None:
         """
         Scrape a specific post by item key.
 
@@ -116,7 +117,7 @@ class PastebinAPI:
             raise_on_throttle: If False and throttled then None will be returned.
 
         Returns:
-            String of paste.
+            Paste model or None
 
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
@@ -126,8 +127,8 @@ class PastebinAPI:
             return None
 
         params = {"i": key}
-        resp = self._get_request("api_scraping_item.php", params)
-        return resp.text
+        resp = self._get_request("api_scrape_item.php", params)
+        return Paste(key, resp.text, str(int(time.time())))
 
     def scrape_meta(
         self,
@@ -157,7 +158,7 @@ class PastebinAPI:
 
         params = {"i": key}
 
-        resp = self._get_request("api_scraping_meta.php", params)
+        resp = self._get_request("api_scrape_item_meta.php", params)
 
         try:
             return PasteMeta(**resp.json())
@@ -185,6 +186,7 @@ class PastebinAPI:
         url = f"{self.base_url}/{route}"
         self.logger.debug("GET - %s - with %s", url, params)
         resp = self._http.get(url, params=params)
+        self._last_call = int(time.time())
 
         if not resp.is_success:
             self._response_error(resp.text, resp.status_code)
