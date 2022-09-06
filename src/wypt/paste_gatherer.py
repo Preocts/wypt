@@ -68,10 +68,11 @@ class PasteGatherer:
             if result is None:
                 return
 
-            self.logger.debug(
-                "Downloaded paste content for key %s (size: %d)",
+            self.logger.info(
+                "Downloaded paste content for key %s (size: %d) - remaining: %d",
                 key[0],
                 len(result.content),
+                self._meta.to_gather_count,
             )
 
             self._paste.insert(result)
