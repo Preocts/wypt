@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from random import choice
+from sqlite3 import Connection
 from typing import Any
 from typing import Sequence
 
@@ -21,10 +22,11 @@ PASTES = Path("tests/fixture/paste.json").read_text()
 
 @pytest.fixture(params=[1, 2])
 def dbf(request: Any) -> tuple[Database, Sequence[BaseModel]]:
+    dbconn = Connection(":memory:")
     if request.param == 2:
-        return (PasteDatabase(), [Paste(**p) for p in json.loads(PASTES)])
+        return (PasteDatabase(dbconn), [Paste(**p) for p in json.loads(PASTES)])
 
-    return (MetaDatabase(), [PasteMeta(**p) for p in json.loads(METAS)])
+    return (MetaDatabase(dbconn), [PasteMeta(**p) for p in json.loads(METAS)])
 
 
 def test_init_creates_table(dbf: tuple[Database, Sequence[BaseModel]]) -> None:

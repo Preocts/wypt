@@ -17,9 +17,9 @@ class Database:
     sql_file: str
     table_name: str
 
-    def __init__(self, db_file: str = ":memory:") -> None:
+    def __init__(self, database_connection: Connection) -> None:
         """Provide target file for database. Default uses memory."""
-        self._dbconn = Connection(db_file)
+        self._dbconn = database_connection
 
         self._create_table()
 
