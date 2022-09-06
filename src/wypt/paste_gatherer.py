@@ -7,6 +7,7 @@ import logging
 from sqlite3 import Connection
 
 from .meta_database import MetaDatabase
+from .paste_database import PasteDatabase
 from .pastebin_api import PastebinAPI
 
 
@@ -21,6 +22,7 @@ class PasteGatherer:
 
         self._api = PastebinAPI()
         self._meta = MetaDatabase(dbconn)
+        self._paste = PasteDatabase(dbconn)
 
     def run(self) -> None:
         """Run main gather loop. CTRL + C to exit loop."""
@@ -36,6 +38,8 @@ class PasteGatherer:
         while "dreams flow":
             if self._api.can_scrape:
                 self._run_scrape()
+            if self._api.can_scrape_item:
+                self._run_scrape_item()
 
     def _run_scrape(self) -> None:
         """Scrape the most recent paste meta data."""
@@ -54,6 +58,23 @@ class PasteGatherer:
             prior_count,
             final_count,
         )
+
+    def _run_scrape_item(self) -> None:
+        """Scrape pastes from meta table that have not been collected."""
+        key = self._meta.get_keys_to_fetch(1)
+
+        if key:
+            result = self._api.scrape_item(key[0])
+            if result is None:
+                return
+
+            self.logger.debug(
+                "Downloaded paste content for key %s (size: %d)",
+                key[0],
+                len(result.content),
+            )
+
+            self._paste.insert(result)
 
 
 if __name__ == "__main__":
