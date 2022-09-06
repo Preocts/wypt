@@ -19,6 +19,7 @@ import httpx
 
 from .exceptions import ResponseError
 from .exceptions import ThrottleError
+from .model import Paste
 from .model import PasteMeta
 
 # Cooldown, in seconds, required between scraping
@@ -104,7 +105,7 @@ class PastebinAPI:
         self.logger.debug("Discovered %d pastes from request.", len(models))
         return models
 
-    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> str | None:
+    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> Paste | None:
         """
         Scrape a specific post by item key.
 
@@ -116,7 +117,7 @@ class PastebinAPI:
             raise_on_throttle: If False and throttled then None will be returned.
 
         Returns:
-            String of paste.
+            Paste model or None
 
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
@@ -127,7 +128,7 @@ class PastebinAPI:
 
         params = {"i": key}
         resp = self._get_request("api_scraping_item.php", params)
-        return resp.text
+        return Paste(key, resp.text, str(int(time.time())))
 
     def scrape_meta(
         self,
