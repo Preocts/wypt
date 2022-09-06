@@ -30,3 +30,4 @@ def test_get_keys_to_fetch() -> None:
 
     assert metas[0].key not in results
     assert len(results) == len(metas) - 1
+    assert metadb.to_gather_count == len(results)

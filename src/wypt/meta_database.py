@@ -11,6 +11,19 @@ class MetaDatabase(Database):
     sql_file: str = "tables/meta_database_tbl.sql"
     table_name: str = "pastemeta"
 
+    @property
+    def to_gather_count(self) -> int:
+        """Return number of rows remaining to gather."""
+        sql = (
+            f"SELECT count(a.key) FROM {self.table_name} a "
+            f"LEFT JOIN {PasteDatabase.table_name} b "
+            f"ON a.key = b.key WHERE b.key IS NULL"
+        )
+
+        with self.cursor() as cursor:
+            cursor.execute(sql)
+            return cursor.fetchone()[0]
+
     def get_keys_to_fetch(self, limit: int = 25) -> tuple[str, ...]:
         """
         Return `limit` of paste key values that have not been fetched.
