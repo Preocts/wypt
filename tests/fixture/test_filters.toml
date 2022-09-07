@@ -1,0 +1,2 @@
+[PATTERNS]
+"Basic Email"="[^@ ]+@[^@ ]+\\.[^@ ]+"
