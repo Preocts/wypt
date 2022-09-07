@@ -24,7 +24,7 @@ class MetaDatabase(Database):
             cursor.execute(sql)
             return cursor.fetchone()[0]
 
-    def get_keys_to_fetch(self, limit: int = 25) -> tuple[str, ...]:
+    def get_keys_to_fetch(self, limit: int = 25) -> list[str]:
         """
         Return `limit` of paste key values that have not been fetched.
 
@@ -41,4 +41,4 @@ class MetaDatabase(Database):
             cursor.execute(sql, (limit,))
             results = cursor.fetchall()
 
-        return tuple(r[0] for r in results)
+        return [r[0] for r in results]
