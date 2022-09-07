@@ -23,11 +23,15 @@ class PasteGatherer:
         self._api = PastebinAPI()
         self._meta = MetaDatabase(dbconn)
         self._paste = PasteDatabase(dbconn)
+        self._to_pull: list[str] = []
         self._remaining_flag = False
 
     def run(self) -> None:
         """Run main gather loop. CTRL + C to exit loop."""
+        self._hydrate_to_pull()
+
         self.logger.info("Starting main gather loop. Press CTRL + C to stop.")
+        self.logger.info("%d keys discovered for pulling.", len(self._to_pull))
         try:
             self._run()
 
@@ -39,7 +43,7 @@ class PasteGatherer:
         while "dreams flow":
             if self._api.can_scrape:
                 self._run_scrape()
-            if self._remaining_flag and self._api.can_scrape_item:
+            if self._to_pull and self._api.can_scrape_item:
                 self._run_scrape_item()
 
     def _run_scrape(self) -> None:
@@ -59,28 +63,30 @@ class PasteGatherer:
             prior_count,
             final_count,
         )
-        self._remaining_flag = prior_count != self._meta.row_count
+        # Rehydrate to pull list
+        self._hydrate_to_pull()
 
     def _run_scrape_item(self) -> None:
         """Scrape pastes from meta table that have not been collected."""
-        key = self._meta.get_keys_to_fetch(1)
+        key = self._to_pull.pop()
 
         if key:
-            result = self._api.scrape_item(key[0])
+            result = self._api.scrape_item(key)
             if result is None:
                 return
 
-            remaining = self._meta.to_gather_count
-
             self.logger.info(
                 "Downloaded paste content for key %s (size: %d) - remaining: %d",
-                key[0],
+                key,
                 len(result.content),
-                remaining,
+                len(self._to_pull),
             )
 
             self._paste.insert(result)
-            self._remaining_flag = bool(remaining)
+
+    def _hydrate_to_pull(self) -> None:
+        """Hydrate list of keys remaining to be pulled and scanned."""
+        self._to_pull = self._meta.get_keys_to_fetch(self._meta.to_gather_count)
 
 
 if __name__ == "__main__":
