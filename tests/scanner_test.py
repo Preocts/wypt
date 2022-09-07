@@ -5,12 +5,13 @@ from wypt.scanner import Scanner
 TEST_STRING = """
 This is a test string
 which will contain preocts.spam@someemail.com a random
-bit of 555555555 interesting 4234876212341224 crap. Add
-more to this string as more tests are needed.
+bit of 555555555 interesting34583547858682157crap. Add
+more to this string as more tests are a@b.c needed.
 """
 
 EXPECTED = {
-    "Basic Email": ["preocts.spam@someemail.com"],
+    "Basic Email": ["preocts.spam@someemail.com", "a@b.c"],
+    "AMEX Card": ["345835478586821"],
 }
 
 

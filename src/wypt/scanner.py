@@ -26,7 +26,10 @@ class Scanner:
         """Compile patterns found in loaded config."""
         rlt: dict[str, re.Pattern[str]] = {}
         for key, value in self._filters.items():
-            rlt[key] = re.compile(value)
+            try:
+                rlt[key] = re.compile(value)
+            except re.error:
+                self.logger.warning("Invalid pattern: %s - '%s'", key, value)
         self.logger.debug("Compiled %d of %d filters", len(rlt), len(self._filters))
         return rlt
 
