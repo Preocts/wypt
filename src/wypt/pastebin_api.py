@@ -25,9 +25,9 @@ from .model import PasteMeta
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
 # Cooldown, in seconds, required between item scraping
-ITEM_THROTTLE = 2
+ITEM_THROTTLE = 1
 # Cooldown, in seconds, required between item meta scraping
-META_THROTTLE = 2
+META_THROTTLE = 1
 DEFAULT_LIMIT = 100
 
 
@@ -44,26 +44,27 @@ class PastebinAPI:
             last_call: Unix time of last action. Defaults to 'now'
         """
         self._http = httpx.Client(timeout=3, follow_redirects=False)
-        self._last_call = last_call if last_call is not None else int(time.time())
+        self._batch = last_call if last_call is not None else int(time.time())
+        self._single = last_call if last_call is not None else int(time.time())
 
     @property
     def can_scrape(self) -> bool:
         """Boolean representing if a scrape request can be performed."""
-        return self._can_act(SCRAPING_THROTTLE)
+        return self._can_act(self._batch, SCRAPING_THROTTLE)
 
     @property
     def can_scrape_item(self) -> bool:
         """Boolean representing if an item scrape can be performed."""
-        return self._can_act(ITEM_THROTTLE)
+        return self._can_act(self._single, ITEM_THROTTLE)
 
     @property
     def can_scrape_meta(self) -> bool:
         """Boolean representing if an meta scrape can be performed."""
-        return self._can_act(META_THROTTLE)
+        return self._can_act(self._single, META_THROTTLE)
 
-    def _can_act(self, timeout_seconds: int) -> bool:
+    def _can_act(self, last_act: int, timeout_seconds: int) -> bool:
         """Determine if enough time has lapsed to allow action."""
-        return int(time.time()) - self._last_call >= timeout_seconds
+        return int(time.time()) - last_act >= timeout_seconds
 
     def scrape(
         self,
@@ -92,7 +93,7 @@ class PastebinAPI:
             ThrottleError: Raised if cooldown between pulls is still active.
             ResponseError: Raised if pastebin returns a failure response.
         """
-        if not self._can_run_action(SCRAPING_THROTTLE, raise_on_throttle):
+        if not self._can_run_action(self._batch, SCRAPING_THROTTLE, raise_on_throttle):
             return []
 
         limit = limit if limit and 0 < limit <= 250 else DEFAULT_LIMIT
@@ -101,6 +102,7 @@ class PastebinAPI:
             params.update({"lang": lang})
 
         resp = self._get_request("api_scraping.php", params)
+        self._batch = int(time.time())
         models = [PasteMeta(**paste) for paste in resp.json()]
         self.logger.debug("Discovered %d pastes from request.", len(models))
         return models
@@ -123,11 +125,12 @@ class PastebinAPI:
             ThrottleError: Raised if cooldown between pulls is still active.
             ResponseError: Raised if pastebin returns a failure response.
         """
-        if not self._can_run_action(ITEM_THROTTLE, raise_on_throttle):
+        if not self._can_run_action(self._single, ITEM_THROTTLE, raise_on_throttle):
             return None
 
         params = {"i": key}
         resp = self._get_request("api_scrape_item.php", params)
+        self._single = int(time.time())
         return Paste(key, resp.text, str(int(time.time())))
 
     def scrape_meta(
@@ -153,23 +156,24 @@ class PastebinAPI:
             ThrottleError: Raised if cooldown between pulls is still active.
             ResponseError: Raised if pastebin returns a failure response.
         """
-        if not self._can_run_action(META_THROTTLE, raise_on_throttle):
+        if not self._can_run_action(self._single, META_THROTTLE, raise_on_throttle):
             return None
 
         params = {"i": key}
 
         resp = self._get_request("api_scrape_item_meta.php", params)
+        self._single = int(time.time())
 
         try:
             return PasteMeta(**resp.json())
         except (TypeError, json.JSONDecodeError):
             return None
 
-    def _can_run_action(self, cooldown: int, raise_: bool) -> bool:
+    def _can_run_action(self, last_act: int, cooldown: int, raise_: bool) -> bool:
         """Check throttle, raise if desired."""
-        throttled = self._can_act(cooldown)
+        throttled = self._can_act(last_act, cooldown)
         if not throttled and raise_:
-            raise ThrottleError(self._last_call, cooldown)
+            raise ThrottleError(self._batch, cooldown)
         return throttled
 
     def _response_error(self, text: str, code: int) -> NoReturn:
@@ -186,7 +190,6 @@ class PastebinAPI:
         url = f"{self.base_url}/{route}"
         self.logger.debug("GET - %s - with %s", url, params)
         resp = self._http.get(url, params=params)
-        self._last_call = int(time.time())
 
         if not resp.is_success:
             self._response_error(resp.text, resp.status_code)
