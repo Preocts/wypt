@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 from wypt.model import BaseModel
+from wypt.model import Match
 from wypt.model import Paste
 from wypt.model import PasteMeta
 
@@ -14,6 +15,7 @@ from wypt.model import PasteMeta
     (
         ("tests/fixture/scrape_resp.json", PasteMeta),
         ("tests/fixture/paste.json", Paste),
+        ("tests/fixture/match.json", Match),
     ),
 )
 def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> None:

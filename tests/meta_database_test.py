@@ -21,7 +21,7 @@ def test_get_keys_to_fetch() -> None:
     pastedb = PasteDatabase(conn)
     metadb = MetaDatabase(conn)
     metas = [PasteMeta(**meta) for meta in json.loads(METAS)]
-    paste = Paste(metas[0].key, "", "")
+    paste = Paste(metas[0].key, "")
     metadb.insert_many(metas)
     pastedb.insert(paste)
 

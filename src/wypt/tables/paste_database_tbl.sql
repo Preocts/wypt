@@ -1,7 +1,6 @@
 -- Order of table columns much match the `Paste` dataclass model.
 CREATE TABLE IF NOT EXISTS paste (
     key text NOT NULL,
-    content text NOT NULL,
     captured_on text NOT NULL
 );
 
