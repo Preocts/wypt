@@ -7,6 +7,8 @@ from pathlib import Path
 
 import toml
 
+from .model import Match
+
 
 class Scanner:
     """Scan a string for patterns of interest."""
@@ -33,18 +35,12 @@ class Scanner:
         self.logger.debug("Compiled %d of %d filters", len(rlt), len(self._filters))
         return rlt
 
-    def scan(self, string: str) -> dict[str, list[str]] | None:
-        """
-        Scan string, return dict of any matched patterns or None.
-
-        Results will be key:pair values where the key is the pattern
-        name as defined in the `wypt.toml`. Values will be a list of
-        matched strings.
-        """
-        matches: dict[str, list[str]] = {}
+    def scan(self, key: str, string: str) -> list[Match]:
+        """Scan string, return Match objects if any found."""
+        matches: list[Match] = []
 
         for label, pattern in self._patterns.items():
             match = pattern.findall(string)
             if match:
-                matches[label] = match
-        return matches if matches else None
+                matches.append(Match(key, label, str(match)))
+        return matches

@@ -6,9 +6,11 @@ from __future__ import annotations
 import logging
 from sqlite3 import Connection
 
+from .match_database import MatchDatabase
 from .meta_database import MetaDatabase
 from .paste_database import PasteDatabase
 from .pastebin_api import PastebinAPI
+from .scanner import Scanner
 
 
 class PasteScanner:
@@ -23,6 +25,8 @@ class PasteScanner:
         self._api = PastebinAPI()
         self._meta = MetaDatabase(dbconn)
         self._paste = PasteDatabase(dbconn)
+        self._match = MatchDatabase(dbconn)
+        self._scanner = Scanner()
         self._to_pull: list[str] = []
         self._remaining_flag = False
 
@@ -75,14 +79,19 @@ class PasteScanner:
             if result is None:
                 return
 
+            matches = self._scanner.scan(key, content or "")
+
             self.logger.info(
-                "Downloaded paste content for key %s (size: %d) - remaining: %d",
+                "Paste content for key %s (size: %d) - %d matches - remaining: %d",
                 key,
-                len(content) if content else 0,
+                len(content or ""),
+                len(matches),
                 len(self._to_pull),
             )
 
             self._paste.insert(result)
+            if matches:
+                self._match.insert_many(matches)
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned."""
