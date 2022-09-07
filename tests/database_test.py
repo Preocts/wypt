@@ -9,8 +9,10 @@ from typing import Sequence
 
 import pytest
 from wypt.database import Database
+from wypt.match_database import MatchDatabase
 from wypt.meta_database import MetaDatabase
 from wypt.model import BaseModel
+from wypt.model import Match
 from wypt.model import Paste
 from wypt.model import PasteMeta
 from wypt.paste_database import PasteDatabase
@@ -18,13 +20,16 @@ from wypt.paste_database import PasteDatabase
 
 METAS = Path("tests/fixture/scrape_resp.json").read_text()
 PASTES = Path("tests/fixture/paste.json").read_text()
+MATCHES = Path("tests/fixture/match.json").read_text()
 
 
-@pytest.fixture(params=[1, 2])
+@pytest.fixture(params=[1, 2, 3])
 def dbf(request: Any) -> tuple[Database, Sequence[BaseModel]]:
     dbconn = Connection(":memory:")
     if request.param == 2:
         return (PasteDatabase(dbconn), [Paste(**p) for p in json.loads(PASTES)])
+    elif request.param == 3:
+        return (MatchDatabase(dbconn), [Match(**p) for p in json.loads(MATCHES)])
 
     return (MetaDatabase(dbconn), [PasteMeta(**p) for p in json.loads(METAS)])
 

@@ -4,11 +4,7 @@ from __future__ import annotations
 import dataclasses
 import json
 
-__all__ = [
-    "BaseModel",
-    "PasteMeta",
-    "Paste",
-]
+__all__ = ["BaseModel", "PasteMeta", "Paste", "Match"]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -55,5 +51,17 @@ class Paste(BaseModel):
     """
 
     key: str
-    content: str
     captured_on: str
+
+
+@dataclasses.dataclass(frozen=True)
+class Match(BaseModel):
+    """
+    Model data from the `paste` table.
+
+    NOTE: Order of attributes is important and should match the respective table.
+    """
+
+    key: str
+    match_name: str
+    content: str

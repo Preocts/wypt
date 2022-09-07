@@ -107,7 +107,12 @@ class PastebinAPI:
         self.logger.debug("Discovered %d pastes from request.", len(models))
         return models
 
-    def scrape_item(self, key: str, *, raise_on_throttle: bool = True) -> Paste | None:
+    def scrape_item(
+        self,
+        key: str,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> tuple[Paste | None, str | None]:
         """
         Scrape a specific post by item key.
 
@@ -119,19 +124,19 @@ class PastebinAPI:
             raise_on_throttle: If False and throttled then None will be returned.
 
         Returns:
-            Paste model or None
+            (Paste model, paste content) or None
 
         Raises:
             ThrottleError: Raised if cooldown between pulls is still active.
             ResponseError: Raised if pastebin returns a failure response.
         """
         if not self._can_run_action(self._single, ITEM_THROTTLE, raise_on_throttle):
-            return None
+            return None, None
 
         params = {"i": key}
         resp = self._get_request("api_scrape_item.php", params)
         self._single = int(time.time())
-        return Paste(key, resp.text, str(int(time.time())))
+        return Paste(key, str(int(time.time()))), resp.text
 
     def scrape_meta(
         self,
