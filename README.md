@@ -13,7 +13,7 @@ Why'd You Paste That (wypt) is a small scraper using pastebin.com's permitted sc
 - Your IP must be allow listed [here](https://pastebin.com/doc_scraping_api).
 - Limits:
   - 1 action of fetching recent 100 public pastes per minute
-  - 1 HTTP request action per second (we run every 2 seconds)
+  - 1 HTTP request action per second
 
 ## Requirements
 
