@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 from wypt.paste_scanner import PasteScanner
 
-TEST_DB = ":memory"
+TEST_DB = ":memory:"
 TEST_CONFIG = "tests/fixture/test_filters.toml"
 
 
