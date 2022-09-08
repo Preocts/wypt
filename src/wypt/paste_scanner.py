@@ -30,7 +30,7 @@ class PasteScanner:
         self._meta = MetaDatabase(dbconn)
         self._paste = PasteDatabase(dbconn)
         self._match = MatchDatabase(dbconn)
-        self._scanner = Scanner()
+        self._scanner = Scanner(pattern_config_file)
         self._to_pull: list[str] = []
         self._remaining_flag = False
 
