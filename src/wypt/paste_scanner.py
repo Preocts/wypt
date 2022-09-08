@@ -18,7 +18,11 @@ class PasteScanner:
 
     logger = logging.getLogger(__name__)
 
-    def __init__(self, database_file: str = "wypt_db.sqlite3") -> None:
+    def __init__(
+        self,
+        database_file: str = "wypt_db.sqlite3",
+        pattern_config_file: str = "wypt.toml",
+    ) -> None:
         """Initialize connection to pastebin and database."""
         dbconn = Connection(database_file)
 
@@ -26,7 +30,7 @@ class PasteScanner:
         self._meta = MetaDatabase(dbconn)
         self._paste = PasteDatabase(dbconn)
         self._match = MatchDatabase(dbconn)
-        self._scanner = Scanner()
+        self._scanner = Scanner(pattern_config_file)
         self._to_pull: list[str] = []
         self._remaining_flag = False
 
@@ -36,19 +40,18 @@ class PasteScanner:
 
         self.logger.info("Starting main gather loop. Press CTRL + C to stop.")
         self.logger.info("%d keys discovered for pulling.", len(self._to_pull))
-        try:
-            self._run()
+        self._run()
 
+    def _run(self) -> None:  # pragma: no cover
+        """Internal main event loop."""
+        try:
+            while "dreams flow":
+                if self._api.can_scrape:
+                    self._run_scrape()
+                if self._to_pull and self._api.can_scrape_item:
+                    self._run_scrape_item()
         except KeyboardInterrupt:
             self.logger.info("Exiting loop process.")
-
-    def _run(self) -> None:
-        """Internal main loop."""
-        while "dreams flow":
-            if self._api.can_scrape:
-                self._run_scrape()
-            if self._to_pull and self._api.can_scrape_item:
-                self._run_scrape_item()
 
     def _run_scrape(self) -> None:
         """Scrape the most recent paste meta data."""
@@ -58,6 +61,7 @@ class PasteScanner:
 
         if results:
             self._meta.insert_many(results)
+            self._hydrate_to_pull()
 
         final_count = self._meta.row_count
 
@@ -67,31 +71,27 @@ class PasteScanner:
             prior_count,
             final_count,
         )
-        # Rehydrate to pull list
-        self._hydrate_to_pull()
 
     def _run_scrape_item(self) -> None:
         """Scrape pastes from meta table that have not been collected."""
         key = self._to_pull.pop()
+        result, content = self._api.scrape_item(key)
+        if result is None:
+            return
 
-        if key:
-            result, content = self._api.scrape_item(key)
-            if result is None:
-                return
+        matches = self._scanner.scan(key, content or "")
 
-            matches = self._scanner.scan(key, content or "")
+        self.logger.info(
+            "Paste content for key %s (size: %d) - %d matches - remaining: %d",
+            key,
+            len(content or ""),
+            len(matches),
+            len(self._to_pull),
+        )
 
-            self.logger.info(
-                "Paste content for key %s (size: %d) - %d matches - remaining: %d",
-                key,
-                len(content or ""),
-                len(matches),
-                len(self._to_pull),
-            )
-
-            self._paste.insert(result)
-            if matches:
-                self._match.insert_many(matches)
+        self._paste.insert(result)
+        if matches:
+            self._match.insert_many(matches)
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned."""
