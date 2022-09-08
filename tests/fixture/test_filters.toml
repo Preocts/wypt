@@ -5,3 +5,4 @@
 "AMEX Card"="\\b3[47][0-9]{13}\\b"
 "Broken Pattern"="\\z"
 "Discord Webhook"="discord\\.com/api/webhooks/\\d*/.+\\b"
+"JWT Token"="[\\w-]{24}\\.[\\w-]{6}\\.[\\w-]{25,110}"
