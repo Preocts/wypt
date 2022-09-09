@@ -3,6 +3,7 @@ from __future__ import annotations
 from unittest.mock import patch
 
 import pytest
+from wypt.model import Paste
 from wypt.paste_scanner import PasteScanner
 
 TEST_DB = ":memory:"
@@ -11,7 +12,7 @@ TEST_CONFIG = "tests/fixture/test_filters.toml"
 
 @pytest.fixture
 def ps() -> PasteScanner:
-    return PasteScanner(TEST_DB, TEST_CONFIG)
+    return PasteScanner(database_file=TEST_DB, pattern_config_file=TEST_CONFIG)
 
 
 def test_run(ps: PasteScanner) -> None:
@@ -36,7 +37,7 @@ def test_run_scape(ps: PasteScanner) -> None:
 
 def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
-    with patch.object(ps._api, "scrape_item", return_value=("mock", "mock")):
+    with patch.object(ps._api, "scrape_item", return_value=Paste("mock", "")):
         with patch.object(ps._scanner, "scan", return_value="mock"):
             with patch.object(ps._paste, "insert") as mock_paste_db:
                 with patch.object(ps._match, "insert_many") as mock_meta_db:
@@ -49,7 +50,7 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
 
 def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
-    with patch.object(ps._api, "scrape_item", return_value=("mock", "mock")):
+    with patch.object(ps._api, "scrape_item", return_value=Paste("mock", "")):
         with patch.object(ps._scanner, "scan", return_value=[]):
             with patch.object(ps._paste, "insert") as mock_paste_db:
                 with patch.object(ps._match, "insert_many") as mock_meta_db:
@@ -62,7 +63,7 @@ def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
 
 def test_run_scrape_early_return(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
-    with patch.object(ps._api, "scrape_item", return_value=(None, None)):
+    with patch.object(ps._api, "scrape_item", return_value=None):
         with patch.object(ps._scanner, "scan", return_value=[]):
             with patch.object(ps._paste, "insert") as mock_paste_db:
                 with patch.object(ps._match, "insert_many") as mock_meta_db:

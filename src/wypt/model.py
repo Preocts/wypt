@@ -30,10 +30,10 @@ class PasteMeta(BaseModel):
     NOTE: Order of attributes is important and should match the respective table.
     """
 
+    key: str
     scrape_url: str
     full_url: str
     date: str
-    key: str
     size: str
     expire: str
     title: str
@@ -51,7 +51,7 @@ class Paste(BaseModel):
     """
 
     key: str
-    captured_on: str
+    content: str
 
 
 @dataclasses.dataclass(frozen=True)
@@ -64,4 +64,7 @@ class Match(BaseModel):
 
     key: str
     match_name: str
-    content: str
+    match_value: str
+
+    def __str__(self) -> str:
+        return f"{self.key:10} {self.match_name[:15]:15} {self.match_value[:50]:50}"

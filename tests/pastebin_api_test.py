@@ -67,7 +67,7 @@ def test_scrape_returns_on_success(client: PastebinAPI) -> None:
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
         result = client.scrape(lang="json")
-        kwargs = mock_http.call_args.kwargs
+        kwargs = mock_http.call_args[1]  # use .kwargs after 3.7 dropped
 
         assert mock_http.call_count == 1
         assert len(result) == len(json.loads(SCRAPE_RESP))
@@ -92,8 +92,7 @@ def test_scrape_limits(client: PastebinAPI, limit: int | None, expected: int) ->
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
         _ = client.scrape(limit=limit)
-        kwargs = mock_http.call_args.kwargs
-
+        kwargs = mock_http.call_args[1]  # use .kwargs after 3.7 dropped
         assert kwargs["params"]["limit"] == str(expected)
 
 
@@ -105,10 +104,9 @@ def test_scrape_item_raises_throttle_error(throttled_client: PastebinAPI) -> Non
 def test_scrape_item_returns_emtpy_on_raise_disabled(
     throttled_client: PastebinAPI,
 ) -> None:
-    result, content = throttled_client.scrape_item("mock", raise_on_throttle=False)
+    result = throttled_client.scrape_item("mock", raise_on_throttle=False)
 
     assert result is None
-    assert content is None
 
 
 def test_scrape_item_raises_response_error_on_failure(client: PastebinAPI) -> None:
@@ -128,12 +126,12 @@ def test_scrape_item_returns_on_success(client: PastebinAPI) -> None:
 
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
-        result, content = client.scrape_item("mock")
+        result = client.scrape_item("mock")
 
         assert mock_http.call_count == 1
         assert result
         assert result.key == "mock"
-        assert content == SCRAPE_RESP
+        assert result.content == SCRAPE_RESP
 
 
 def test_scrape_meta_raises_throttle_error(throttled_client: PastebinAPI) -> None:

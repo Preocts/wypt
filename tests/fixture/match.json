@@ -2,11 +2,11 @@
     {
         "key": "x",
         "match_name": "Basic Email",
-        "content": "preocts.spam@somemail.com"
+        "match_value": "preocts.spam@somemail.com"
     },
     {
         "key": "y",
         "match_name": "Basic Email",
-        "content": "preocts.spam@somemail.com"
+        "match_value": "preocts.spam@somemail.com"
     }
 ]

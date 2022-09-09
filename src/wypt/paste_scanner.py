@@ -8,6 +8,7 @@ from sqlite3 import Connection
 
 from .match_database import MatchDatabase
 from .meta_database import MetaDatabase
+from .model import Paste
 from .paste_database import PasteDatabase
 from .pastebin_api import PastebinAPI
 from .scanner import Scanner
@@ -20,10 +21,19 @@ class PasteScanner:
 
     def __init__(
         self,
+        *,
         database_file: str = "wypt_db.sqlite3",
         pattern_config_file: str = "wypt.toml",
+        save_paste_content: bool = False,
     ) -> None:
-        """Initialize connection to pastebin and database."""
+        """
+        Initialize connection to pastebin and database.
+
+        Args:
+            database_file: Override default sqlite3 file used
+            pattern_config_file: Override default pattern toml used
+            save_paste_content: When true, full paste content saved to database
+        """
         dbconn = Connection(database_file)
 
         self._api = PastebinAPI()
@@ -32,7 +42,7 @@ class PasteScanner:
         self._match = MatchDatabase(dbconn)
         self._scanner = Scanner(pattern_config_file)
         self._to_pull: list[str] = []
-        self._remaining_flag = False
+        self._save_paste_content = save_paste_content
 
     def run(self) -> None:
         """Run main gather loop. CTRL + C to exit loop."""
@@ -75,20 +85,21 @@ class PasteScanner:
     def _run_scrape_item(self) -> None:
         """Scrape pastes from meta table that have not been collected."""
         key = self._to_pull.pop()
-        result, content = self._api.scrape_item(key)
+        result = self._api.scrape_item(key)
         if result is None:
             return
 
-        matches = self._scanner.scan(key, content or "")
+        matches = self._scanner.scan(key, result.content)
 
         self.logger.info(
             "Paste content for key %s (size: %d) - %d matches - remaining: %d",
             key,
-            len(content or ""),
+            len(result.content),
             len(matches),
             len(self._to_pull),
         )
 
+        result = result if self._save_paste_content else Paste(key, "")
         self._paste.insert(result)
         if matches:
             self._match.insert_many(matches)

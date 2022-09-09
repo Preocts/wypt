@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .database import Database
+from .model import PasteMeta
 from .paste_database import PasteDatabase
 
 
@@ -10,6 +11,7 @@ class MetaDatabase(Database):
 
     sql_file: str = "tables/meta_database_tbl.sql"
     table_name: str = "pastemeta"
+    model = PasteMeta
 
     @property
     def to_gather_count(self) -> int:

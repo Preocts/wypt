@@ -45,8 +45,8 @@ def test_init_creates_table(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
 
 
 def test_insert_row(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
-    db, metas = dbf
-    meta = choice(metas)
+    db, models = dbf
+    meta = choice(models)
 
     initial = db.insert(meta)
     duplicate = db.insert(meta)
@@ -59,12 +59,24 @@ def test_insert_row(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
 
 
 def test_insert_many_with_failure(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
-    db, metas = dbf
-    expected_len = len(metas)
-    metas.append(metas[0])  # type: ignore # create a duplicate
+    db, models = dbf
+    expected_len = len(models)
+    models.append(models[0])  # type: ignore # create a duplicate
 
-    results = db.insert_many(metas)
+    results = db.insert_many(models)
 
     assert db.row_count == expected_len
     assert len(results) == 1
     assert results[0] == expected_len  # Last entry is duplicate
+
+
+def test_get_iter(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
+    db, models = dbf
+    db.insert_many(models)
+
+    row_results: list[BaseModel] = []
+    for row in db.get_iter(limit=1):
+        row_results.append(row)
+
+    for (model, result) in zip(models, row_results):
+        assert model == result

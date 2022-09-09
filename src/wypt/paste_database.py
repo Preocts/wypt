@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from .database import Database
+from .model import Paste
 
 
 class PasteDatabase(Database):
@@ -9,3 +10,4 @@ class PasteDatabase(Database):
 
     sql_file = "tables/paste_database_tbl.sql"
     table_name = "paste"
+    model = Paste

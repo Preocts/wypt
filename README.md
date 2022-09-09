@@ -17,7 +17,7 @@ Why'd You Paste That (wypt) is a small scraper using pastebin.com's permitted sc
 
 ## Requirements
 
-- [Python](https://python.org) >= 3.8
+- [Python](https://python.org) >= 3.7
 - [httpx](https://pypi.org/project/httpx/) == 0.23.0
 
 ---
