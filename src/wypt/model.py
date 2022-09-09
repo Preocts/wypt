@@ -65,3 +65,6 @@ class Match(BaseModel):
     key: str
     match_name: str
     match_value: str
+
+    def __str__(self) -> str:
+        return f"{self.key:10} {self.match_name[:15]:15} {self.match_value[:50]:50}"

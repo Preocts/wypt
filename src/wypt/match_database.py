@@ -11,3 +11,8 @@ class MatchDatabase(Database):
     sql_file = "tables/match_database_tbl.sql"
     table_name = "match"
     model = Match
+
+    def to_stdout(self) -> None:
+        """Print table out."""
+        for row in self.get_iter():
+            print(str(row))
