@@ -67,7 +67,7 @@ def test_scrape_returns_on_success(client: PastebinAPI) -> None:
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
         result = client.scrape(lang="json")
-        kwargs = mock_http.call_args.kwargs
+        kwargs = mock_http.call_args[1]  # use .kwargs after 3.7 dropped
 
         assert mock_http.call_count == 1
         assert len(result) == len(json.loads(SCRAPE_RESP))
@@ -92,8 +92,7 @@ def test_scrape_limits(client: PastebinAPI, limit: int | None, expected: int) ->
     with patch.object(client._http, "get", return_value=resp) as mock_http:
 
         _ = client.scrape(limit=limit)
-        kwargs = mock_http.call_args.kwargs
-
+        kwargs = mock_http.call_args[1]  # use .kwargs after 3.7 dropped
         assert kwargs["params"]["limit"] == str(expected)
 
 
