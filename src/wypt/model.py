@@ -30,10 +30,10 @@ class PasteMeta(BaseModel):
     NOTE: Order of attributes is important and should match the respective table.
     """
 
+    key: str
     scrape_url: str
     full_url: str
     date: str
-    key: str
     size: str
     expire: str
     title: str

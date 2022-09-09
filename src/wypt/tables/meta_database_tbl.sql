@@ -1,9 +1,9 @@
 -- Order of table columns much match the `PasteMeta` dataclass model.
 CREATE TABLE IF NOT EXISTS pastemeta (
+    key text NOT NULL,
     scrape_url text NOT NULL,
     full_url text NOT NULL,
     date text NOT NULL,
-    key text NOT NULL,
     size text NOT NULL,
     expire text NOT NULL,
     title text NOT NULL,
