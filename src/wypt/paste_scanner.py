@@ -8,6 +8,7 @@ from sqlite3 import Connection
 
 from .match_database import MatchDatabase
 from .meta_database import MetaDatabase
+from .model import Paste
 from .paste_database import PasteDatabase
 from .pastebin_api import PastebinAPI
 from .scanner import Scanner
@@ -98,6 +99,7 @@ class PasteScanner:
             len(self._to_pull),
         )
 
+        result = result if self._save_paste_content else Paste(key, "")
         self._paste.insert(result)
         if matches:
             self._match.insert_many(matches)
