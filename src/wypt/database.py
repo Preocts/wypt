@@ -104,8 +104,6 @@ class Database:
                     break
 
                 for row in rows:
-                    print(row)
                     row_lst = list(row)
                     last_row_index = row_lst.pop()
-                    print(row_lst)
                     yield self.model(*row_lst)
