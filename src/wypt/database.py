@@ -82,3 +82,30 @@ class Database:
                     failures.append(idx)
 
         return tuple(failures)
+
+    def get_iter(self, *, limit: int = 100) -> Generator[BaseModel, None, None]:
+        """
+        Get all rows from database via iterator.
+
+        Use the keyword arg `limit` to control the maximum number of rows
+        fetched from database at a time. The lower the number the lower
+        memory overhead with a tradeoff of more frequent disk I/O.
+        """
+        last_row_index = 0
+        with self.cursor() as cursor:
+            while "the grass grows":
+                sql = f"SELECT *, rowid FROM {self.table_name} WHERE rowid > ? LIMIT ?"
+
+                cursor.execute(sql, (last_row_index, limit))
+
+                rows = cursor.fetchall()
+
+                if not rows:
+                    break
+
+                for row in rows:
+                    print(row)
+                    row_lst = list(row)
+                    last_row_index = row_lst.pop()
+                    print(row_lst)
+                    yield self.model(*row_lst)
