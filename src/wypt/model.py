@@ -51,7 +51,7 @@ class Paste(BaseModel):
     """
 
     key: str
-    captured_on: str
+    content: str
 
 
 @dataclasses.dataclass(frozen=True)
@@ -64,4 +64,4 @@ class Match(BaseModel):
 
     key: str
     match_name: str
-    content: str
+    match_value: str
