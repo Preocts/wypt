@@ -11,7 +11,7 @@ TEST_CONFIG = "tests/fixture/test_filters.toml"
 
 @pytest.fixture
 def ps() -> PasteScanner:
-    return PasteScanner(TEST_DB, TEST_CONFIG)
+    return PasteScanner(database_file=TEST_DB, pattern_config_file=TEST_CONFIG)
 
 
 def test_run(ps: PasteScanner) -> None:
