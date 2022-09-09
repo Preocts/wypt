@@ -16,6 +16,7 @@ class Database:
 
     sql_file: str
     table_name: str
+    model: type[BaseModel]
 
     def __init__(self, database_connection: Connection) -> None:
         """Provide target file for database. Default uses memory."""
