@@ -27,6 +27,11 @@ class Database:
 
         self._create_table()
 
+    def to_stdout(self) -> None:
+        """Print table to stdout, renders table model's __str__."""
+        for row in self.get_iter():
+            print(str(row))
+
     @property
     def row_count(self) -> int:
         """Current count of rows in database."""
@@ -166,8 +171,3 @@ class MatchDatabase(Database):
     sql_file = "tables/match_database_tbl.sql"
     table_name = "match"
     model = Match
-
-    def to_stdout(self) -> None:
-        """Print table out."""
-        for row in self.get_iter():
-            print(str(row))
