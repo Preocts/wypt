@@ -9,13 +9,13 @@ from typing import Sequence
 
 import pytest
 from wypt.database import Database
-from wypt.match_database import MatchDatabase
-from wypt.meta_database import MetaDatabase
+from wypt.database import MatchDatabase
+from wypt.database import MetaDatabase
+from wypt.database import PasteDatabase
 from wypt.model import BaseModel
 from wypt.model import Match
 from wypt.model import Paste
 from wypt.model import PasteMeta
-from wypt.paste_database import PasteDatabase
 
 
 METAS = Path("tests/fixture/scrape_resp.json").read_text()
@@ -80,3 +80,23 @@ def test_get_iter(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
 
     for (model, result) in zip(models, row_results):
         assert model == result
+
+
+def test_metadb_get_keys_to_fetch() -> None:
+    # Overly complex setup joyness
+    # Setup two databases with mock data. Results should expect
+    # all keys of meta fixture to be returns sans 0th index key.
+    conn = Connection(":memory:")
+    pastedb = PasteDatabase(conn)
+    metadb = MetaDatabase(conn)
+    metas = [PasteMeta(**meta) for meta in json.loads(METAS)]
+    paste = Paste(metas[0].key, "")
+    metadb.insert_many(metas)
+    pastedb.insert(paste)
+
+    results = metadb.get_keys_to_fetch()
+    print(results)
+
+    assert metas[0].key not in results
+    assert len(results) == len(metas) - 1
+    assert metadb.to_gather_count == len(results)

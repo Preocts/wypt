@@ -10,6 +10,9 @@ from typing import Generator
 from typing import Sequence
 
 from .model import BaseModel
+from .model import Match
+from .model import Paste
+from .model import PasteMeta
 
 
 class Database:
@@ -23,6 +26,11 @@ class Database:
         self._dbconn = database_connection
 
         self._create_table()
+
+    def to_stdout(self) -> None:
+        """Print table to stdout, renders table model's __str__."""
+        for row in self.get_iter():
+            print(str(row))
 
     @property
     def row_count(self) -> int:
@@ -107,3 +115,59 @@ class Database:
                     row_lst = list(row)
                     last_row_index = row_lst.pop()
                     yield self.model(*row_lst)
+
+
+class PasteDatabase(Database):
+    """Access Paste table for pastes."""
+
+    sql_file = "tables/paste_database_tbl.sql"
+    table_name = "paste"
+    model = Paste
+
+
+class MetaDatabase(Database):
+    """Access Meta table for pastes."""
+
+    sql_file: str = "tables/meta_database_tbl.sql"
+    table_name: str = "pastemeta"
+    model = PasteMeta
+
+    @property
+    def to_gather_count(self) -> int:
+        """Return number of rows remaining to gather."""
+        sql = (
+            f"SELECT count(a.key) FROM {self.table_name} a "
+            f"LEFT JOIN {PasteDatabase.table_name} b "
+            f"ON a.key = b.key WHERE b.key IS NULL"
+        )
+
+        with self.cursor() as cursor:
+            cursor.execute(sql)
+            return cursor.fetchone()[0]
+
+    def get_keys_to_fetch(self, limit: int = 25) -> list[str]:
+        """
+        Return `limit` of paste key values that have not been fetched.
+
+        NOTE: Can return less than `limit` or empty results.
+        """
+
+        sql = (
+            f"SELECT a.key FROM {self.table_name} a "
+            f"LEFT JOIN {PasteDatabase.table_name} b "
+            f"ON a.key = b.key WHERE b.key IS NULL LIMIT ?"
+        )
+
+        with self.cursor() as cursor:
+            cursor.execute(sql, (limit,))
+            results = cursor.fetchall()
+
+        return [r[0] for r in results]
+
+
+class MatchDatabase(Database):
+    """Access Paste table for pastes."""
+
+    sql_file = "tables/match_database_tbl.sql"
+    table_name = "match"
+    model = Match

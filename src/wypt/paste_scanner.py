@@ -6,10 +6,10 @@ from __future__ import annotations
 import logging
 from sqlite3 import Connection
 
-from .match_database import MatchDatabase
-from .meta_database import MetaDatabase
+from .database import MatchDatabase
+from .database import MetaDatabase
+from .database import PasteDatabase
 from .model import Paste
-from .paste_database import PasteDatabase
 from .pastebin_api import PastebinAPI
 from .scanner import Scanner
 
