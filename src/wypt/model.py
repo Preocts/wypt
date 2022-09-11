@@ -3,6 +3,8 @@ from __future__ import annotations
 
 import dataclasses
 import json
+from ast import literal_eval
+from datetime import datetime
 
 __all__ = ["BaseModel", "PasteMeta", "Paste", "Match"]
 
@@ -41,6 +43,10 @@ class PasteMeta(BaseModel):
     user: str
     hits: str
 
+    def __str__(self) -> str:
+        dt = str(datetime.fromtimestamp(float(self.date)))
+        return f"{self.full_url:21} | {dt:19} | {self.title[:25]:25} | {self.syntax:12}"
+
 
 @dataclasses.dataclass(frozen=True)
 class Paste(BaseModel):
@@ -52,6 +58,10 @@ class Paste(BaseModel):
 
     key: str
     content: str
+
+    def __str__(self) -> str:
+        url = "https://pastebin.com/"
+        return f"{url + self.key:21} | {self.content[:50]:50}"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -67,4 +77,7 @@ class Match(BaseModel):
     match_value: str
 
     def __str__(self) -> str:
-        return f"{self.key:10} {self.match_name[:15]:15} {self.match_value[:50]:50}"
+        row_head = f"{self.key:8} | {self.match_name[:15]:15} | "
+        row_list = literal_eval(self.match_value)
+        row = [f"{row_head}{value[:50]:50}" for value in row_list]
+        return "\n".join(row)
