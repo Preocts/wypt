@@ -30,3 +30,17 @@ def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> N
 
         assert test_dict == resp
         assert test_json == expected_json
+
+
+@pytest.mark.parametrize(
+    "model",
+    (
+        Match("test", "test", "test"),
+        Paste("test", "test"),
+        PasteMeta("tst", "tst", "tst", "0", "0", "0", "tst", "tst", "tst", "0"),
+    ),
+)
+def test_model_str(model: BaseModel) -> None:
+    result = str(model)
+
+    assert len(result) == 79

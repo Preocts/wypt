@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 from random import choice
 from sqlite3 import Connection
@@ -80,6 +82,21 @@ def test_get_iter(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
 
     for (model, result) in zip(models, row_results):
         assert model == result
+
+
+def test_to_stdout(dbf: tuple[Database, Sequence[BaseModel]]) -> None:
+    db, models = dbf
+    capture = StringIO()
+    # This, ideally, should not duplicate the insert_many test but here we are :(
+    expected_len = len(models)
+    models.append(models[0])  # type: ignore # create a duplicate
+    db.insert_many(models)
+
+    with redirect_stdout(capture):
+        db.to_stdout()
+
+    lines = [line for line in capture.getvalue().split("\n") if line]
+    assert len(lines) == expected_len
 
 
 def test_metadb_get_keys_to_fetch() -> None:

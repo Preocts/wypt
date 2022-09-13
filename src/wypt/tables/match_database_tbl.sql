@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS match (
 );
 
 -- Create a unique index on the paste key
-CREATE UNIQUE INDEX IF NOT EXISTS match_key ON match(key, match_name);
+CREATE UNIQUE INDEX IF NOT EXISTS match_key ON match(key, match_name, match_value);

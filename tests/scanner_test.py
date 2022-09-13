@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from wypt.model import Match
 from wypt.scanner import Scanner
 
 TEST_STRING = """
@@ -11,15 +10,16 @@ more to this string as more tests are a@b.c needed.
 """
 
 EXPECTED = [
-    Match("test", "Basic Email", str(["preocts.spam@someemail.com", "a@b.c"])),
-    Match("test", "AMEX Card", str(["345835478586821"])),
+    ("Basic Email", "preocts.spam@someemail.com"),
+    ("Basic Email", "a@b.c"),
+    ("AMEX Card", "345835478586821"),
 ]
 
 
 def test_scan() -> None:
     scanner = Scanner("tests/fixture/test_filters.toml")
 
-    results = scanner.scan("test", TEST_STRING)
+    results = scanner.scan(TEST_STRING)
 
     assert results
 
@@ -30,6 +30,6 @@ def test_scan() -> None:
 def test_scan_no_hit() -> None:
     scanner = Scanner("tests/fixture/test_filters.toml")
 
-    result = scanner.scan("test", "Nothing")
+    result = scanner.scan("Nothing")
 
     assert result == []
