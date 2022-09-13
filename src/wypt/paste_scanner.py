@@ -9,6 +9,7 @@ from sqlite3 import Connection
 from .database import MatchDatabase
 from .database import MetaDatabase
 from .database import PasteDatabase
+from .model import Match
 from .model import Paste
 from .pastebin_api import PastebinAPI
 from .scanner import Scanner
@@ -89,7 +90,8 @@ class PasteScanner:
         if result is None:
             return
 
-        matches = self._scanner.scan(key, result.content)
+        # Matches will be a list of (match_label, match_content) values
+        matches = self._scanner.scan(result.content)
 
         self.logger.info(
             "Paste content for key %s (size: %d) - %d matches - remaining: %d",
@@ -102,7 +104,7 @@ class PasteScanner:
         result = result if self._save_paste_content else Paste(key, "")
         self._paste.insert(result)
         if matches:
-            self._match.insert_many(matches)
+            self._match.insert_many([Match(key, nm, val) for nm, val in matches])
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned."""

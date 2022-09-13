@@ -38,7 +38,7 @@ def test_run_scape(ps: PasteScanner) -> None:
 def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
     with patch.object(ps._api, "scrape_item", return_value=Paste("mock", "")):
-        with patch.object(ps._scanner, "scan", return_value="mock"):
+        with patch.object(ps._scanner, "scan", return_value=[("mock", "mock")]):
             with patch.object(ps._paste, "insert") as mock_paste_db:
                 with patch.object(ps._match, "insert_many") as mock_meta_db:
 
