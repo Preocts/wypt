@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+from contextlib import redirect_stdout
+from io import StringIO
 from pathlib import Path
 
 import pytest
@@ -30,3 +32,19 @@ def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> N
 
         assert test_dict == resp
         assert test_json == expected_json
+
+
+@pytest.mark.parametrize(
+    "model",
+    (
+        Match("test", "test", "test"),
+        Paste("test", "test"),
+        PasteMeta("tst", "tst", "tst", "0", "0", "0", "tst", "tst", "tst", "0"),
+    ),
+)
+def test_model_str(model: BaseModel) -> None:
+    capture = StringIO()
+    with redirect_stdout(capture):
+        print(str(model))
+
+    assert len(capture.getvalue()) == 79
