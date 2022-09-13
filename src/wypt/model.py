@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import dataclasses
 import json
-from ast import literal_eval
 from datetime import datetime
 
 __all__ = ["BaseModel", "PasteMeta", "Paste", "Match"]
@@ -77,7 +76,4 @@ class Match(BaseModel):
     match_value: str
 
     def __str__(self) -> str:
-        row_head = f"{self.key:8} | {self.match_name[:15]:15} | "
-        row_list = literal_eval(self.match_value)
-        row = [f"{row_head}{value[:50]:50}" for value in row_list]
-        return "\n".join(row)
+        return f"{self.key:8} | {self.match_name[:15]:15} | {self.match_value[:50]:50}"
