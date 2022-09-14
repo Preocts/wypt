@@ -13,3 +13,4 @@ __pycache__/
 
 # Program artifacts
 *.sqlite3
+wypt_patterns.toml
