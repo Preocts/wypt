@@ -105,11 +105,12 @@ class PasteScanner:
         result = result if self._save_paste_content else Paste(key, "")
         self._db.insert("paste", result)
         if matches:
-            self._db.insert_many("paste", [Match(key, nm, val) for nm, val in matches])
+            self._db.insert_many("match", [Match(key, nm, val) for nm, val in matches])
 
     def _hydrate_to_pull(self) -> None:
-        """Hydrate list of keys remaining to be pulled and scanned."""
-        self._to_pull = self._db.get_difference("meta", "paste")
+        """Hydrate list of keys remaining to be pulled and scanned if empty."""
+        if not self._to_pull:
+            self._to_pull = self._db.get_difference("meta", "paste", limit=100)
 
 
 if __name__ == "__main__":
