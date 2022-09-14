@@ -11,7 +11,7 @@ from .model import Match
 from .model import Meta
 from .model import Paste
 from .pastebin_api import PastebinAPI
-from .scanner import Scanner
+from .pattern_config import PatternConfig
 
 
 class PasteScanner:
@@ -42,7 +42,7 @@ class PasteScanner:
         self._db.add_table("match", "tables/match_database_tbl.sql", Match)
 
         self._api = PastebinAPI()
-        self._scanner = Scanner(pattern_config_file)
+        self._scanner = PatternConfig(pattern_config_file)
         self._to_pull: list[str] = []
         self._save_paste_content = save_paste_content
 

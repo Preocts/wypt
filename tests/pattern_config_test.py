@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from wypt.scanner import Scanner
+from wypt.pattern_config import PatternConfig
 
 TEST_STRING = """
 This is a test string
@@ -17,7 +17,7 @@ EXPECTED = [
 
 
 def test_scan() -> None:
-    scanner = Scanner("tests/fixture/test_filters.toml")
+    scanner = PatternConfig("tests/fixture/test_filters.toml")
 
     results = scanner.scan(TEST_STRING)
 
@@ -28,7 +28,7 @@ def test_scan() -> None:
 
 
 def test_scan_no_hit() -> None:
-    scanner = Scanner("tests/fixture/test_filters.toml")
+    scanner = PatternConfig("tests/fixture/test_filters.toml")
 
     result = scanner.scan("Nothing")
 

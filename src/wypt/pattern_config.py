@@ -8,7 +8,7 @@ from pathlib import Path
 import toml
 
 
-class Scanner:
+class PatternConfig:
     """Scan a string for patterns of interest."""
 
     logger = logging.getLogger(__name__)
