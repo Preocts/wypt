@@ -13,15 +13,15 @@ import pytest
 from wypt.database import Database
 from wypt.model import BaseModel
 from wypt.model import Match
+from wypt.model import Meta
 from wypt.model import Paste
-from wypt.model import PasteMeta
 
 
 METAS = Path("tests/fixture/scrape_resp.json").read_text()
 PASTES = Path("tests/fixture/paste.json").read_text()
 MATCHES = Path("tests/fixture/match.json").read_text()
 
-META_ROWS = [PasteMeta(**d) for d in json.loads(METAS)]
+META_ROWS = [Meta(**d) for d in json.loads(METAS)]
 PASTE_ROWS = [Paste(**d) for d in json.loads(PASTES)]
 MATCH_ROWS = [Match(**d) for d in json.loads(MATCHES)]
 
@@ -39,7 +39,7 @@ def db() -> Database:
 
     database = Database(dbconn)
     database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-    database.add_table("pastemeta", "tables/meta_database_tbl.sql", PasteMeta)
+    database.add_table("pastemeta", "tables/meta_database_tbl.sql", Meta)
     database.add_table("match", "tables/match_database_tbl.sql", Match)
 
     return database
@@ -114,7 +114,7 @@ def test_to_stdout(db: Database, table_data: T_Data) -> None:
 def test_metadb_get_keys_to_fetch(db: Database) -> None:
     # Setup two databases with mock data. Results should expect
     # all keys of meta fixture to be returns sans 0th index key.
-    metas = [PasteMeta(**meta) for meta in json.loads(METAS)]
+    metas = [Meta(**meta) for meta in json.loads(METAS)]
     paste = Paste(metas[0].key, "")
     db.insert_many("pastemeta", metas)
     db.insert("paste", paste)

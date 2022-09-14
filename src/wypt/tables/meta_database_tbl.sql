@@ -1,5 +1,5 @@
--- Order of table columns much match the `PasteMeta` dataclass model.
-CREATE TABLE IF NOT EXISTS pastemeta (
+-- Order of table columns much match the `Meta` dataclass model.
+CREATE TABLE IF NOT EXISTS meta (
     key text NOT NULL,
     scrape_url text NOT NULL,
     full_url text NOT NULL,
@@ -13,6 +13,6 @@ CREATE TABLE IF NOT EXISTS pastemeta (
 );
 
 -- Create a unique index on the paste_key
-CREATE UNIQUE INDEX IF NOT EXISTS pastemeta_key ON pastemeta(key);
+CREATE UNIQUE INDEX IF NOT EXISTS meta_key ON meta(key);
 -- Create an index on the syntax flag for searching
 CREATE INDEX IF NOT EXISTS syntax_flag ON pastemeta(syntax);

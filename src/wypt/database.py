@@ -11,22 +11,11 @@ from typing import Sequence
 from typing import TypedDict
 
 from .model import BaseModel
-from .model import Match
-from .model import Paste
-from .model import PasteMeta
 
 
 class _Table(TypedDict):
     sql_file: str
     model: type[BaseModel]
-
-
-# Database table config
-DATABASE_TABLES: dict[str, _Table] = {
-    "paste": {"sql_file": "tables/paste_database_tbl.sql", "model": Paste},
-    "pastemeta": {"sql_file": "tables/meta_database_tbl.sql", "model": PasteMeta},
-    "match": {"sql_file": "tables/match_database_tbl.sql", "model": Match},
-}
 
 
 class Database:

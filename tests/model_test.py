@@ -6,14 +6,14 @@ from pathlib import Path
 import pytest
 from wypt.model import BaseModel
 from wypt.model import Match
+from wypt.model import Meta
 from wypt.model import Paste
-from wypt.model import PasteMeta
 
 
 @pytest.mark.parametrize(
     ("fixture", "model"),
     (
-        ("tests/fixture/scrape_resp.json", PasteMeta),
+        ("tests/fixture/scrape_resp.json", Meta),
         ("tests/fixture/paste.json", Paste),
         ("tests/fixture/match.json", Match),
     ),
@@ -37,7 +37,7 @@ def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> N
     (
         Match("test", "test", "test"),
         Paste("test", "test"),
-        PasteMeta("tst", "tst", "tst", "0", "0", "0", "tst", "tst", "tst", "0"),
+        Meta("tst", "tst", "tst", "0", "0", "0", "tst", "tst", "tst", "0"),
     ),
 )
 def test_model_str(model: BaseModel) -> None:
