@@ -19,8 +19,8 @@ import httpx
 
 from .exceptions import ResponseError
 from .exceptions import ThrottleError
+from .model import Meta
 from .model import Paste
-from .model import PasteMeta
 
 # Cooldown, in seconds, required between scraping
 SCRAPING_THROTTLE = 60
@@ -72,7 +72,7 @@ class PastebinAPI:
         lang: str | None = None,
         *,
         raise_on_throttle: bool = True,
-    ) -> list[PasteMeta]:
+    ) -> list[Meta]:
         """
         Scrape recent posts from pastebin.
 
@@ -103,7 +103,7 @@ class PastebinAPI:
 
         resp = self._get_request("api_scraping.php", params)
         self._batch = int(time.time())
-        models = [PasteMeta(**paste) for paste in resp.json()]
+        models = [Meta(**paste) for paste in resp.json()]
         self.logger.debug("Discovered %d pastes from request.", len(models))
         return models
 
@@ -143,7 +143,7 @@ class PastebinAPI:
         key: str,
         *,
         raise_on_throttle: bool = True,
-    ) -> PasteMeta | None:
+    ) -> Meta | None:
         """
         Scrape meta of a paste by unique paste key.
 
@@ -170,7 +170,7 @@ class PastebinAPI:
         self._single = int(time.time())
 
         try:
-            return PasteMeta(**resp.json())
+            return Meta(**resp.json())
         except (TypeError, json.JSONDecodeError):
             return None
 

@@ -6,10 +6,9 @@ from __future__ import annotations
 import logging
 from sqlite3 import Connection
 
-from .database import MatchDatabase
-from .database import MetaDatabase
-from .database import PasteDatabase
+from .database import Database
 from .model import Match
+from .model import Meta
 from .model import Paste
 from .pastebin_api import PastebinAPI
 from .scanner import Scanner
@@ -37,10 +36,12 @@ class PasteScanner:
         """
         dbconn = Connection(database_file)
 
+        self._db = Database(dbconn)
+        self._db.add_table("paste", "tables/paste_database_tbl.sql", Paste)
+        self._db.add_table("meta", "tables/meta_database_tbl.sql", Meta)
+        self._db.add_table("match", "tables/match_database_tbl.sql", Match)
+
         self._api = PastebinAPI()
-        self._meta = MetaDatabase(dbconn)
-        self._paste = PasteDatabase(dbconn)
-        self._match = MatchDatabase(dbconn)
         self._scanner = Scanner(pattern_config_file)
         self._to_pull: list[str] = []
         self._save_paste_content = save_paste_content
@@ -67,14 +68,14 @@ class PasteScanner:
     def _run_scrape(self) -> None:
         """Scrape the most recent paste meta data."""
         self.logger.debug("Pulling most recent paste meta.")
-        prior_count = self._meta.row_count
+        prior_count = self._db.row_count("meta")
         results = self._api.scrape()
 
         if results:
-            self._meta.insert_many(results)
+            self._db.insert_many("meta", results)
             self._hydrate_to_pull()
 
-        final_count = self._meta.row_count
+        final_count = self._db.row_count("meta")
 
         self.logger.info(
             "Discovered %d - Prior count %d - Current count %d",
@@ -102,13 +103,13 @@ class PasteScanner:
         )
 
         result = result if self._save_paste_content else Paste(key, "")
-        self._paste.insert(result)
+        self._db.insert("paste", result)
         if matches:
-            self._match.insert_many([Match(key, nm, val) for nm, val in matches])
+            self._db.insert_many("match", [Match(key, nm, val) for nm, val in matches])
 
     def _hydrate_to_pull(self) -> None:
-        """Hydrate list of keys remaining to be pulled and scanned."""
-        self._to_pull = self._meta.get_keys_to_fetch(self._meta.to_gather_count)
+        """Hydrate list of keys remaining to be pulled and scanned if empty."""
+        self._to_pull = self._db.get_difference("meta", "paste", limit=100)
 
 
 if __name__ == "__main__":

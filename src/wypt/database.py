@@ -10,38 +10,42 @@ from typing import Generator
 from typing import Sequence
 
 from .model import BaseModel
-from .model import Match
-from .model import Paste
-from .model import PasteMeta
 
 
 class Database:
-
-    sql_file: str
-    table_name: str
-    model: type[BaseModel]
-
     def __init__(self, database_connection: Connection) -> None:
         """Provide target file for database. Default uses memory."""
         self._dbconn = database_connection
+        self._tables: dict[str, type[BaseModel]] = {}
 
-        self._create_table()
+    def add_table(self, table: str, sql_file: str, model: type[BaseModel]) -> None:
+        """
+        Create/Add a table from sql_file and model.
 
-    def to_stdout(self) -> None:
+        Note: sql_file script is executed on add.
+
+        Args:
+            table: Name of the table
+            sql_file: SQLite3 script to create table. Should assert IF NOT EXISTS
+            model: BaseModel subclass to hold table data
+        """
+        self._tables[table] = model
+        self._create_table(sql_file)
+
+    def to_stdout(self, table: str) -> None:
         """Print table to stdout, renders table model's __str__."""
-        for row in self.get_iter():
+        for row in self.get_iter(table):
             print(str(row))
 
-    @property
-    def row_count(self) -> int:
+    def row_count(self, table: str) -> int:
         """Current count of rows in database."""
         with self.cursor() as cursor:
-            query = cursor.execute(f"SELECT count(*) FROM {self.table_name}")
+            query = cursor.execute(f"SELECT count(*) FROM {table}")
             return query.fetchone()[0]
 
-    def _create_table(self) -> None:
+    def _create_table(self, sql_file: str) -> None:
         """Create table in database if it does not exist."""
-        sql = Path(Path(__file__).parent / self.sql_file).read_text()
+        sql = Path(Path(__file__).parent / sql_file).read_text()
 
         with self.cursor(commit_on_exit=True) as cursor:
             cursor.executescript(sql)
@@ -58,30 +62,20 @@ class Database:
                 self._dbconn.commit()
             cursor.close()
 
-    def contains(self, key: str) -> bool:
-        """True if database contains given key."""
-        sql = f"SELECT count(*) FROM {self.table_name} WHERE key=?"
-        with self.cursor() as cursor:
-            cursor.execute(sql, (key,))
-            result = cursor.fetchone()
-        return bool(result[0])
-
-    def insert(self, row_data: BaseModel) -> bool:
+    def insert(self, table: str, row_data: BaseModel) -> bool:
         """Insert paste into table, returns false on failure."""
         # If insert_many returns no failues, insert had success.
-        return not (self.insert_many([row_data]))
+        return not (self.insert_many(table, [row_data]))
 
-    def insert_many(self, rows: Sequence[BaseModel]) -> tuple[int, ...]:
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
         """Insert many pastes into table, returns index of failures if any."""
         model_dct = rows[0].to_dict()
         columns = ",".join(list(model_dct.keys()))
         values_ph = ",".join(["?" for _ in model_dct.keys()])
         failures: list[int] = []
-
         for idx, row in enumerate(rows):
-
             values = list(row.to_dict().values())
-            sql = f"INSERT INTO {self.table_name} ({columns}) VALUES({values_ph})"
+            sql = f"INSERT INTO {table} ({columns}) VALUES({values_ph})"
 
             with self.cursor(commit_on_exit=True) as cursor:
                 try:
@@ -91,7 +85,12 @@ class Database:
 
         return tuple(failures)
 
-    def get_iter(self, *, limit: int = 100) -> Generator[BaseModel, None, None]:
+    def get_iter(
+        self,
+        table: str,
+        *,
+        limit: int = 100,
+    ) -> Generator[BaseModel, None, None]:
         """
         Get all rows from database via iterator.
 
@@ -102,7 +101,7 @@ class Database:
         last_row_index = 0
         with self.cursor() as cursor:
             while "the grass grows":
-                sql = f"SELECT *, rowid FROM {self.table_name} WHERE rowid > ? LIMIT ?"
+                sql = f"SELECT *, rowid FROM {table} WHERE rowid > ? LIMIT ?"
 
                 cursor.execute(sql, (last_row_index, limit))
 
@@ -114,47 +113,27 @@ class Database:
                 for row in rows:
                     row_lst = list(row)
                     last_row_index = row_lst.pop()
-                    yield self.model(*row_lst)
+                    yield self._tables[table](*row_lst)
 
-
-class PasteDatabase(Database):
-    """Access Paste table for pastes."""
-
-    sql_file = "tables/paste_database_tbl.sql"
-    table_name = "paste"
-    model = Paste
-
-
-class MetaDatabase(Database):
-    """Access Meta table for pastes."""
-
-    sql_file: str = "tables/meta_database_tbl.sql"
-    table_name: str = "pastemeta"
-    model = PasteMeta
-
-    @property
-    def to_gather_count(self) -> int:
-        """Return number of rows remaining to gather."""
-        sql = (
-            f"SELECT count(a.key) FROM {self.table_name} a "
-            f"LEFT JOIN {PasteDatabase.table_name} b "
-            f"ON a.key = b.key WHERE b.key IS NULL"
-        )
-
-        with self.cursor() as cursor:
-            cursor.execute(sql)
-            return cursor.fetchone()[0]
-
-    def get_keys_to_fetch(self, limit: int = 25) -> list[str]:
+    def get_difference(
+        self,
+        left_table: str,
+        right_table: str,
+        limit: int = 25,
+    ) -> list[str]:
         """
-        Return `limit` of paste key values that have not been fetched.
+        Return the difference of `key` values on left table against right table.
 
         NOTE: Can return less than `limit` or empty results.
+
+        Args:
+            left_table: Base table for query (has the values to find)
+            right_table: table to join and compare against (missing values to find)
         """
 
         sql = (
-            f"SELECT a.key FROM {self.table_name} a "
-            f"LEFT JOIN {PasteDatabase.table_name} b "
+            f"SELECT a.key FROM {left_table} a "
+            f"LEFT JOIN {right_table} b "
             f"ON a.key = b.key WHERE b.key IS NULL LIMIT ?"
         )
 
@@ -163,11 +142,3 @@ class MetaDatabase(Database):
             results = cursor.fetchall()
 
         return [r[0] for r in results]
-
-
-class MatchDatabase(Database):
-    """Access Paste table for pastes."""
-
-    sql_file = "tables/match_database_tbl.sql"
-    table_name = "match"
-    model = Match

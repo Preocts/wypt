@@ -5,7 +5,7 @@ import dataclasses
 import json
 from datetime import datetime
 
-__all__ = ["BaseModel", "PasteMeta", "Paste", "Match"]
+__all__ = ["BaseModel", "Meta", "Paste", "Match"]
 
 
 @dataclasses.dataclass(frozen=True)
@@ -24,7 +24,7 @@ class BaseModel:
 
 
 @dataclasses.dataclass(frozen=True)
-class PasteMeta(BaseModel):
+class Meta(BaseModel):
     """
     Model data from the `pastemeta` table.
 
