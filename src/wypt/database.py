@@ -1,4 +1,4 @@
-"""Superclass to database classes."""
+"""Read/Write actions to the sqlite3 database."""
 from __future__ import annotations
 
 from contextlib import contextmanager
@@ -14,7 +14,7 @@ from .model import BaseModel
 
 class Database:
     def __init__(self, database_connection: Connection) -> None:
-        """Provide target file for database. Default uses memory."""
+        """Read/Write actions to the sqlite3 database."""
         self._dbconn = database_connection
         self._tables: dict[str, type[BaseModel]] = {}
 
