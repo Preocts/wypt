@@ -109,8 +109,7 @@ class PasteScanner:
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
-        if not self._to_pull:
-            self._to_pull = self._db.get_difference("meta", "paste", limit=100)
+        self._to_pull = self._db.get_difference("meta", "paste", limit=100)
 
 
 if __name__ == "__main__":

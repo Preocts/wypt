@@ -8,21 +8,15 @@ from sqlite3 import Cursor
 from sqlite3 import IntegrityError
 from typing import Generator
 from typing import Sequence
-from typing import TypedDict
 
 from .model import BaseModel
-
-
-class _Table(TypedDict):
-    sql_file: str
-    model: type[BaseModel]
 
 
 class Database:
     def __init__(self, database_connection: Connection) -> None:
         """Provide target file for database. Default uses memory."""
         self._dbconn = database_connection
-        self._tables: dict[str, _Table] = {}
+        self._tables: dict[str, type[BaseModel]] = {}
 
     def add_table(self, table: str, sql_file: str, model: type[BaseModel]) -> None:
         """
@@ -35,7 +29,7 @@ class Database:
             sql_file: SQLite3 script to create table. Should assert IF NOT EXISTS
             model: BaseModel subclass to hold table data
         """
-        self._tables[table] = {"sql_file": sql_file, "model": model}
+        self._tables[table] = model
         self._create_table(sql_file)
 
     def to_stdout(self, table: str) -> None:
@@ -119,7 +113,7 @@ class Database:
                 for row in rows:
                     row_lst = list(row)
                     last_row_index = row_lst.pop()
-                    yield self._tables[table]["model"](*row_lst)
+                    yield self._tables[table](*row_lst)
 
     def get_difference(
         self,
