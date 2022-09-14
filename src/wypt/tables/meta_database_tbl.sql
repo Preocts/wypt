@@ -15,4 +15,4 @@ CREATE TABLE IF NOT EXISTS meta (
 -- Create a unique index on the paste_key
 CREATE UNIQUE INDEX IF NOT EXISTS meta_key ON meta(key);
 -- Create an index on the syntax flag for searching
-CREATE INDEX IF NOT EXISTS syntax_flag ON pastemeta(syntax);
+CREATE INDEX IF NOT EXISTS syntax_flag ON meta(syntax);
