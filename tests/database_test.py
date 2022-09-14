@@ -26,7 +26,7 @@ PASTE_ROWS = [Paste(**d) for d in json.loads(PASTES)]
 MATCH_ROWS = [Match(**d) for d in json.loads(MATCHES)]
 
 TABLE_DATA = [
-    ("pastemeta", META_ROWS),
+    ("meta", META_ROWS),
     ("paste", PASTE_ROWS),
     ("match", MATCH_ROWS),
 ]
@@ -39,7 +39,7 @@ def db() -> Database:
 
     database = Database(dbconn)
     database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-    database.add_table("pastemeta", "tables/meta_database_tbl.sql", Meta)
+    database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
     database.add_table("match", "tables/match_database_tbl.sql", Match)
 
     return database
@@ -116,10 +116,10 @@ def test_metadb_get_keys_to_fetch(db: Database) -> None:
     # all keys of meta fixture to be returns sans 0th index key.
     metas = [Meta(**meta) for meta in json.loads(METAS)]
     paste = Paste(metas[0].key, "")
-    db.insert_many("pastemeta", metas)
+    db.insert_many("meta", metas)
     db.insert("paste", paste)
 
-    results = db.get_difference("pastemeta", "paste", limit=100)
+    results = db.get_difference("meta", "paste", limit=100)
 
     assert metas[0].key not in results
     assert len(results) == len(metas) - 1

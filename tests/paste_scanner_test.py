@@ -25,7 +25,7 @@ def test_run(ps: PasteScanner) -> None:
 
 def test_run_scape(ps: PasteScanner) -> None:
     with patch.object(ps._api, "scrape", side_effect=[[], [1]]) as mock_pull:
-        with patch.object(ps._meta, "insert_many") as mock_db:
+        with patch.object(ps._db, "insert_many") as mock_db:
             # First call does not trigger insert to database
             ps._run_scrape()
             # Second call does trigger insert to database
@@ -39,8 +39,8 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
     with patch.object(ps._api, "scrape_item", return_value=Paste("mock", "")):
         with patch.object(ps._scanner, "scan", return_value=[("mock", "mock")]):
-            with patch.object(ps._paste, "insert") as mock_paste_db:
-                with patch.object(ps._match, "insert_many") as mock_meta_db:
+            with patch.object(ps._db, "insert") as mock_paste_db:
+                with patch.object(ps._db, "insert_many") as mock_meta_db:
 
                     ps._run_scrape_item()
 
@@ -52,8 +52,8 @@ def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
     with patch.object(ps._api, "scrape_item", return_value=Paste("mock", "")):
         with patch.object(ps._scanner, "scan", return_value=[]):
-            with patch.object(ps._paste, "insert") as mock_paste_db:
-                with patch.object(ps._match, "insert_many") as mock_meta_db:
+            with patch.object(ps._db, "insert") as mock_paste_db:
+                with patch.object(ps._db, "insert_many") as mock_meta_db:
 
                     ps._run_scrape_item()
 
@@ -65,8 +65,8 @@ def test_run_scrape_early_return(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
     with patch.object(ps._api, "scrape_item", return_value=None):
         with patch.object(ps._scanner, "scan", return_value=[]):
-            with patch.object(ps._paste, "insert") as mock_paste_db:
-                with patch.object(ps._match, "insert_many") as mock_meta_db:
+            with patch.object(ps._db, "insert") as mock_paste_db:
+                with patch.object(ps._db, "insert_many") as mock_meta_db:
 
                     ps._run_scrape_item()
 
