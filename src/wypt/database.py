@@ -66,7 +66,6 @@ class Database:
 
         with self.cursor(commit_on_exit=True) as cursor:
             cursor.executescript(sql)
-        print("created", sql_file)
 
     @contextmanager
     def cursor(self, *, commit_on_exit: bool = False) -> Generator[Cursor, None, None]:
@@ -91,11 +90,10 @@ class Database:
         columns = ",".join(list(model_dct.keys()))
         values_ph = ",".join(["?" for _ in model_dct.keys()])
         failures: list[int] = []
-        print(columns)
         for idx, row in enumerate(rows):
             values = list(row.to_dict().values())
             sql = f"INSERT INTO {table} ({columns}) VALUES({values_ph})"
-            print(sql)
+
             with self.cursor(commit_on_exit=True) as cursor:
                 try:
                     cursor.execute(sql, values)
