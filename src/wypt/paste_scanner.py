@@ -21,28 +21,26 @@ class PasteScanner:
 
     def __init__(
         self,
+        database: Database,
+        patterns: PatternConfig,
+        pastebin_api: PastebinAPI,
         *,
-        database_file: str = "wypt_db.sqlite3",
-        pattern_config_file: str = "wypt.toml",
         save_paste_content: bool = False,
     ) -> None:
         """
-        Initialize connection to pastebin and database.
+        Initialize PasteScanner controller class.
 
         Args:
-            database_file: Override default sqlite3 file used
-            pattern_config_file: Override default pattern toml used
+            database: Database provider with added tables
+            patterns: PatternConfig provider
+            pastebin_api: PastebinAPI provider
             save_paste_content: When true, full paste content saved to database
         """
-        dbconn = Connection(database_file)
+        self._database = database
+        self._patterns = patterns
 
-        self._db = Database(dbconn)
-        self._db.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-        self._db.add_table("meta", "tables/meta_database_tbl.sql", Meta)
-        self._db.add_table("match", "tables/match_database_tbl.sql", Match)
+        self._pastebin_api = pastebin_api
 
-        self._api = PastebinAPI()
-        self._scanner = PatternConfig(pattern_config_file)
         self._to_pull: list[str] = []
         self._save_paste_content = save_paste_content
 
@@ -58,9 +56,9 @@ class PasteScanner:
         """Internal main event loop."""
         try:
             while "dreams flow":
-                if self._api.can_scrape:
+                if self._pastebin_api.can_scrape:
                     self._run_scrape()
-                if self._to_pull and self._api.can_scrape_item:
+                if self._to_pull and self._pastebin_api.can_scrape_item:
                     self._run_scrape_item()
         except KeyboardInterrupt:
             self.logger.info("Exiting loop process.")
@@ -68,31 +66,22 @@ class PasteScanner:
     def _run_scrape(self) -> None:
         """Scrape the most recent paste meta data."""
         self.logger.debug("Pulling most recent paste meta.")
-        prior_count = self._db.row_count("meta")
-        results = self._api.scrape()
+        results = self._pastebin_api.scrape()
 
         if results:
-            self._db.insert_many("meta", results)
+            result = self._database.insert_many("meta", results)
+            self.logger.info("Discovered %d metas.", len(results) - len(result))
             self._hydrate_to_pull()
-
-        final_count = self._db.row_count("meta")
-
-        self.logger.info(
-            "Discovered %d - Prior count %d - Current count %d",
-            len(results),
-            prior_count,
-            final_count,
-        )
 
     def _run_scrape_item(self) -> None:
         """Scrape pastes from meta table that have not been collected."""
         key = self._to_pull.pop()
-        result = self._api.scrape_item(key)
+        result = self._pastebin_api.scrape_item(key)
         if result is None:
             return
 
         # Matches will be a list of (match_label, match_content) values
-        matches = self._scanner.scan(result.content)
+        matches = self._patterns.scan(result.content)
 
         self.logger.info(
             "Paste content for key %s (size: %d) - %d matches - remaining: %d",
@@ -103,16 +92,34 @@ class PasteScanner:
         )
 
         result = result if self._save_paste_content else Paste(key, "")
-        self._db.insert("paste", result)
+        self._database.insert("paste", result)
         if matches:
-            self._db.insert_many("match", [Match(key, nm, val) for nm, val in matches])
+            self._database.insert_many(
+                "match", [Match(key, nm, val) for nm, val in matches]
+            )
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
-        self._to_pull = self._db.get_difference("meta", "paste", limit=100)
+        self._to_pull = self._database.get_difference("meta", "paste", limit=100)
 
 
 if __name__ == "__main__":
     logging.basicConfig(level="DEBUG")
-    gatherer = PasteScanner()
+
+    # Connect to and build database
+    dbconn = Connection("wypt_datebase.sqlite3")
+    database = Database(dbconn)
+    database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
+    database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
+    database.add_table("match", "tables/match_database_tbl.sql", Match)
+
+    # Load pattern file
+    pattern_config = PatternConfig()
+
+    # Create API client
+    api = PastebinAPI()
+
+    # Create controller
+    gatherer = PasteScanner(database, pattern_config, api, save_paste_content=True)
+
     gatherer.run()
