@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import re
+from typing import Generator
 from typing import Sequence
 from unittest.mock import patch
 
@@ -13,11 +15,11 @@ from wypt.paste_scanner import PasteScanner
 class MockPastebinAPI:
     @property
     def can_scrape(self) -> bool:
-        ...
+        raise NotImplementedError()
 
     @property
     def can_scrape_item(self) -> bool:
-        ...
+        raise NotImplementedError()
 
     def scrape(
         self,
@@ -38,7 +40,7 @@ class MockPastebinAPI:
 
 
 class MockPatternConfig:
-    def scan(self, string: str) -> list[tuple[str, str]]:
+    def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
         raise NotImplementedError()
 
 
@@ -83,8 +85,10 @@ def test_run_scape(ps: PasteScanner) -> None:
 
 def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
-    with patch.object(ps._pastebin_api, "scrape_item", return_value=Paste("mock", "")):
-        with patch.object(ps._patterns, "scan", return_value=[("mock", "mock")]):
+    paste = Paste("mock", "Hello there!")
+    ptn = re.compile(".+")  # Match everything
+    with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
+        with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert") as mock_paste_db:
                 with patch.object(ps._database, "insert_many") as mock_meta_db:
 
@@ -96,25 +100,20 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
 
 def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
-    with patch.object(ps._pastebin_api, "scrape_item", return_value=Paste("mock", "")):
-        with patch.object(ps._patterns, "scan", return_value=[]):
+    paste = Paste("mock", "Hello there!")
+    ptn = re.compile("^$")  # Match nothing
+    with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
+        with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert") as mock_paste_db:
-                with patch.object(ps._database, "insert_many") as mock_meta_db:
+                with patch.object(ps._database, "insert_many") as mock_match_db:
 
                     ps._run_scrape_item()
 
     assert mock_paste_db.call_count == 1
-    assert mock_meta_db.call_count == 0
+    assert mock_match_db.call_count == 0
 
 
 def test_run_scrape_early_return(ps: PasteScanner) -> None:
     ps._to_pull = ["mock"]
     with patch.object(ps._pastebin_api, "scrape_item", return_value=None):
-        with patch.object(ps._patterns, "scan", return_value=[]):
-            with patch.object(ps._database, "insert") as mock_paste_db:
-                with patch.object(ps._database, "insert_many") as mock_meta_db:
-
-                    ps._run_scrape_item()
-
-    assert mock_paste_db.call_count == 0
-    assert mock_meta_db.call_count == 0
+        ps._run_scrape_item()

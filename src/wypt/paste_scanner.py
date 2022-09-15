@@ -4,7 +4,9 @@ Gather and scan paste data from pastebin.
 from __future__ import annotations
 
 import logging
+import re
 from sqlite3 import Connection
+from typing import Generator
 from typing import Protocol
 from typing import Sequence
 
@@ -31,7 +33,7 @@ class _Database(Protocol):
 
 
 class _PatternConfig(Protocol):
-    def scan(self, string: str) -> list[tuple[str, str]]:
+    def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
         ...
 
 
@@ -128,23 +130,33 @@ class PasteScanner:
         if result is None:
             return
 
-        # Matches will be a list of (match_label, match_content) values
-        matches = self._patterns.scan(result.content)
+        match_count = self._save_pattern_matches(key, result.content)
 
         self.logger.info(
             "Paste content for key %s (size: %d) - %d matches - remaining: %d",
             key,
             len(result.content),
-            len(matches),
+            match_count,
             len(self._to_pull),
         )
 
+        # Remove content from model if class flag is False
         result = result if self._save_paste_content else Paste(key, "")
         self._database.insert("paste", result)
+
+    def _save_pattern_matches(self, key: str, content: str) -> int:
+        """Save matches from content to database, return count of matches."""
+        matches: list[Match] = []
+
+        for label, pattern in self._patterns.pattern_iter():
+            match = pattern.findall(content)
+            if match:
+                matches.extend([Match(key, label, val) for val in match])
+
         if matches:
-            self._database.insert_many(
-                "match", [Match(key, nm, val) for nm, val in matches]
-            )
+            self._database.insert_many("match", matches)
+
+        return len(matches)
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
