@@ -1,34 +1,56 @@
 from __future__ import annotations
 
+from typing import Sequence
 from unittest.mock import patch
 
 import pytest
+from wypt.model import BaseModel
+from wypt.model import Meta
 from wypt.model import Paste
 from wypt.paste_scanner import PasteScanner
 
 
 class MockPastebinAPI:
-    def scrape(self) -> None:
+    @property
+    def can_scrape(self) -> bool:
+        ...
+
+    @property
+    def can_scrape_item(self) -> bool:
+        ...
+
+    def scrape(
+        self,
+        limit: int | None = None,
+        lang: str | None = None,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> list[Meta]:
         raise NotImplementedError()
 
-    def scrape_item(self) -> None:
+    def scrape_item(
+        self,
+        key: str,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> Paste | None:
         raise NotImplementedError()
 
 
 class MockPatternConfig:
-    def scan(self) -> None:
+    def scan(self, string: str) -> list[tuple[str, str]]:
         raise NotImplementedError()
 
 
 class MockDatabase:
-    def insert(self) -> None:
+    def insert(self, table: str, row_data: BaseModel) -> bool:
         raise NotImplementedError()
 
-    def insert_many(self) -> None:
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
         raise NotImplementedError()
 
     def get_difference(
-        self, left_table: str, right_table: str, limit: int
+        self, left_table: str, right_table: str, limit: int = 25
     ) -> list[str]:
         return []
 
@@ -36,7 +58,7 @@ class MockDatabase:
 @pytest.fixture
 def ps() -> PasteScanner:
 
-    return PasteScanner(MockDatabase(), MockPatternConfig(), MockPastebinAPI())  # type: ignore # noqa
+    return PasteScanner(MockDatabase(), MockPatternConfig(), MockPastebinAPI())
 
 
 def test_run(ps: PasteScanner) -> None:

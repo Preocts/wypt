@@ -5,13 +5,61 @@ from __future__ import annotations
 
 import logging
 from sqlite3 import Connection
+from typing import Protocol
+from typing import Sequence
 
 from .database import Database
+from .model import BaseModel
 from .model import Match
 from .model import Meta
 from .model import Paste
 from .pastebin_api import PastebinAPI
 from .pattern_config import PatternConfig
+
+
+class _Database(Protocol):
+    def insert(self, table: str, row_data: BaseModel) -> bool:
+        ...
+
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
+        ...
+
+    def get_difference(
+        self, left_table: str, right_table: str, limit: int = 25
+    ) -> list[str]:
+        ...
+
+
+class _PatternConfig(Protocol):
+    def scan(self, string: str) -> list[tuple[str, str]]:
+        ...
+
+
+class _PastebinAPI(Protocol):
+    @property
+    def can_scrape(self) -> bool:
+        ...
+
+    @property
+    def can_scrape_item(self) -> bool:
+        ...
+
+    def scrape(
+        self,
+        limit: int | None = None,
+        lang: str | None = None,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> list[Meta]:
+        ...
+
+    def scrape_item(
+        self,
+        key: str,
+        *,
+        raise_on_throttle: bool = True,
+    ) -> Paste | None:
+        ...
 
 
 class PasteScanner:
@@ -21,9 +69,9 @@ class PasteScanner:
 
     def __init__(
         self,
-        database: Database,
-        patterns: PatternConfig,
-        pastebin_api: PastebinAPI,
+        database: _Database,
+        patterns: _PatternConfig,
+        pastebin_api: _PastebinAPI,
         *,
         save_paste_content: bool = False,
     ) -> None:
