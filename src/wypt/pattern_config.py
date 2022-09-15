@@ -16,18 +16,18 @@ class PatternConfig:
 
     def __init__(self, pattern_config_file: str = "wypt_patterns.toml") -> None:
         """Load and compile patterns config."""
-        self._filters = self._load_config(pattern_config_file)
-        self._patterns = self._compile_patterns()
+        filters = self._load_config(pattern_config_file)
+        self._patterns = self._compile_patterns(filters)
 
-    def _compile_patterns(self) -> dict[str, re.Pattern[str]]:
+    def _compile_patterns(self, filters: dict[str, str]) -> dict[str, re.Pattern[str]]:
         """Compile patterns found in loaded config."""
         rlt: dict[str, re.Pattern[str]] = {}
-        for key, value in self._filters.items():
+        for key, value in filters.items():
             try:
                 rlt[key] = re.compile(value)
             except re.error:
                 self.logger.warning("Invalid pattern: %s - '%s'", key, value)
-        self.logger.debug("Compiled %d of %d filters", len(rlt), len(self._filters))
+        self.logger.debug("Compiled %d of %d filters", len(rlt), len(filters))
         return rlt
 
     def _load_config(self, fp: str) -> dict[str, str]:

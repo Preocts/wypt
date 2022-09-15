@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pytest
@@ -27,7 +28,7 @@ LABELS = {
     "Discord Webhook",
     "JWT Token",
 }
-MISSING = {"Broken Pattern"}
+MISSING = "Broken Pattern"
 
 
 @pytest.mark.parametrize(
@@ -53,7 +54,20 @@ def test_pattern_iter() -> None:
 
     labels = {label for label, _ in scanner.pattern_iter()}
 
-    assert LABELS.difference(labels) == MISSING
+    assert LABELS.difference(labels) == {MISSING}
+
+
+def test_compile_patterns() -> None:
+    scanner = PatternConfig()
+    filters = scanner._load_config("tests/fixture/test_filters.toml")
+
+    patterns = scanner._compile_patterns(filters)
+
+    for label, match in patterns.items():
+        assert label in LABELS
+        assert isinstance(match, re.Pattern)
+
+    assert MISSING not in patterns
 
 
 def test_scan() -> None:
