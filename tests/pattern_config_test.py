@@ -27,7 +27,7 @@ LABELS = {
     "Discord Webhook",
     "JWT Token",
 }
-MISSING = "Broken Pattern"
+MISSING = {"Broken Pattern"}
 
 
 @pytest.mark.parametrize(
@@ -46,6 +46,14 @@ def test_load_config(caplog: Any, file: str, logtext: str, expected: set[str]) -
     labels = set(patterns.keys())
 
     assert labels == expected
+
+
+def test_pattern_iter() -> None:
+    scanner = PatternConfig("tests/fixture/test_filters.toml")
+
+    labels = {label for label, _ in scanner.pattern_iter()}
+
+    assert LABELS.difference(labels) == MISSING
 
 
 def test_scan() -> None:
