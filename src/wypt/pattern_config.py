@@ -49,13 +49,3 @@ class PatternConfig:
     def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
         """Iterater of compliled pattern. Returns (Pattern Label, re.Pattern)"""
         yield from ((label, pattern) for label, pattern in self._patterns.items())
-
-    def scan(self, string: str) -> list[tuple[str, str]]:
-        """Scan against all loaded patterns return pattern label, match if found."""
-        matches: list[tuple[str, str]] = []
-
-        for label, pattern in self._patterns.items():
-            match = pattern.findall(string)
-            if match:
-                matches.extend([(label, m) for m in match])
-        return matches
