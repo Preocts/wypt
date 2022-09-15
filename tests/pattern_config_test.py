@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import pytest
 from wypt.pattern_config import PatternConfig
 
 TEST_STRING = """
@@ -29,34 +30,22 @@ LABELS = {
 MISSING = "Broken Pattern"
 
 
-def test_load_config_expected_patterns() -> None:
-    scanner = PatternConfig("tests/fixture/test_filters.toml")
+@pytest.mark.parametrize(
+    ("file", "logtext", "expected"),
+    (
+        ("tests/fixture/test_filters.toml", "", LABELS),
+        ("tests/fixture/test_filters.toml.no.there", "config file not found", set()),
+        ("tests/pattern_config_test.py", "Invalid toml format", set()),
+        ("tests/pyproject.toml", "section missing from", set()),
+    ),
+)
+def test_load_config(caplog: Any, file: str, logtext: str, expected: set[str]) -> None:
+    scanner = PatternConfig(file)
 
-    patterns = scanner._load_config("tests/fixture/test_filters.toml")
+    patterns = scanner._load_config(file)
     labels = set(patterns.keys())
 
-    assert labels == LABELS
-
-
-def test_load_config_file_not_found(caplog: Any) -> None:
-    scanner = PatternConfig("tests/fixture/test_filters.not.there")
-
-    assert scanner._filters == {}
-    assert "config file not found" in caplog.text
-
-
-def test_load_config_file_invalid_toml(caplog: Any) -> None:
-    scanner = PatternConfig("tests/pattern_config_test.py")
-
-    assert scanner._filters == {}
-    assert "Invalid toml format" in caplog.text
-
-
-def test_load_config_file_key_error(caplog: Any) -> None:
-    scanner = PatternConfig("pyproject.toml")
-
-    assert scanner._filters == {}
-    assert "section missing from" in caplog.text
+    assert labels == expected
 
 
 def test_scan() -> None:
