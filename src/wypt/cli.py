@@ -12,10 +12,15 @@ from .paste_scanner import PasteScanner
 from .pastebin_api import PastebinAPI
 from .pattern_config import PatternConfig
 
+# TODO: Create runtime init setup
+logging.basicConfig(
+    level="INFO",
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+)
 
-if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
 
+def scan() -> int:
+    """Point of entry for paste scanning."""
     # Connect to and build database
     dbconn = Connection("wypt_datebase.sqlite3")
     database = Database(dbconn)
@@ -33,3 +38,9 @@ if __name__ == "__main__":
     gatherer = PasteScanner(database, pattern_config, api, save_paste_content=True)
 
     gatherer.run()
+
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(scan())
