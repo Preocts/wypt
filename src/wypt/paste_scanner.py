@@ -6,8 +6,13 @@ from __future__ import annotations
 import logging
 import re
 from typing import Generator
-from typing import Protocol
 from typing import Sequence
+
+try:
+    from typing_extensions import Protocol
+except ImportError:
+    from typing import Protocol  # type: ignore
+
 
 from .model import BaseModel
 from .model import Match
