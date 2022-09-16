@@ -19,10 +19,10 @@ logging.basicConfig(
 )
 
 
-def scan() -> int:
+def scan(database_file: str = "wypt_database.sqlite3") -> int:
     """Point of entry for paste scanning."""
     # Connect to and build database
-    dbconn = Connection("wypt_datebase.sqlite3")
+    dbconn = Connection(database_file)
     database = Database(dbconn)
     database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
     database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
