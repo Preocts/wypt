@@ -7,6 +7,7 @@ from sqlite3 import Connection
 from sqlite3 import Cursor
 from sqlite3 import IntegrityError
 from typing import Generator
+from typing import NoReturn
 from typing import Sequence
 
 from .model import BaseModel
@@ -34,11 +35,13 @@ class Database:
 
     def to_stdout(self, table: str) -> None:
         """Print table to stdout, renders table model's __str__."""
+        self._table_guard(table)
         for row in self.get_iter(table):
             print(str(row))
 
     def row_count(self, table: str) -> int:
         """Current count of rows in database."""
+        self._table_guard(table)
         with self.cursor() as cursor:
             query = cursor.execute(f"SELECT count(*) FROM {table}")
             return query.fetchone()[0]
@@ -69,6 +72,7 @@ class Database:
 
     def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
         """Insert many pastes into table, returns index of failures if any."""
+        self._table_guard(table)
         model_dct = rows[0].to_dict()
         columns = ",".join(list(model_dct.keys()))
         values_ph = ",".join(["?" for _ in model_dct.keys()])
@@ -98,6 +102,7 @@ class Database:
         fetched from database at a time. The lower the number the lower
         memory overhead with a tradeoff of more frequent disk I/O.
         """
+        self._table_guard(table)
         last_row_index = 0
         with self.cursor() as cursor:
             while "the grass grows":
@@ -130,6 +135,8 @@ class Database:
             left_table: Base table for query (has the values to find)
             right_table: table to join and compare against (missing values to find)
         """
+        self._table_guard(left_table)
+        self._table_guard(right_table)
 
         sql = (
             f"SELECT a.key FROM {left_table} a "
@@ -142,3 +149,10 @@ class Database:
             results = cursor.fetchall()
 
         return [r[0] for r in results]
+
+    def _table_guard(self, table: str) -> None | NoReturn:
+        """Raise KeyError if table name has not been added to class."""
+        if table not in self._tables:
+            raise KeyError(f"Invalid table '{table}' provided.")
+
+        return None

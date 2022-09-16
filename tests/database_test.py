@@ -123,3 +123,8 @@ def test_metadb_get_keys_to_fetch(db: Database) -> None:
 
     assert metas[0].key not in results
     assert len(results) == len(metas) - 1
+
+
+def test_table_guard_raises(db: Database) -> None:
+    with pytest.raises(KeyError):
+        db._table_guard("nothere")
