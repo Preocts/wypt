@@ -116,7 +116,7 @@ class PasteScanner:
 
         if results:
             result = self._database.insert_many("meta", results)
-            self.logger.info("Discovered %d metas.", len(results) - len(result))
+            self.logger.info("Discovered %d new meta rows.", len(results) - len(result))
             self._hydrate_to_pull()
 
     def _run_scrape_item(self) -> None:
