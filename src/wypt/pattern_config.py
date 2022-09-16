@@ -36,6 +36,7 @@ class PatternConfig:
             return toml.load(Path(fp).open())["PATTERNS"]
 
         except KeyError:
+            print("*" * 79)
             self.logger.error("[PATTERNS] section missing from %s", fp)
 
         except FileNotFoundError:

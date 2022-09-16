@@ -24,7 +24,7 @@ MISSING = "Broken Pattern"
         ("tests/fixture/test_filters.toml", "", LABELS),
         ("tests/fixture/test_filters.toml.no.there", "config file not found", set()),
         ("tests/pattern_config_test.py", "Invalid toml format", set()),
-        ("tests/pyproject.toml", "section missing from", set()),
+        ("pyproject.toml", "section missing from", set()),
     ),
 )
 def test_load_config(caplog: Any, file: str, logtext: str, expected: set[str]) -> None:
@@ -34,6 +34,7 @@ def test_load_config(caplog: Any, file: str, logtext: str, expected: set[str]) -
     labels = set(patterns.keys())
 
     assert labels == expected
+    assert logtext in caplog.text
 
 
 def test_pattern_iter() -> None:
