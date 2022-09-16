@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wypt"
 version = "0.0.1"
-requires-python = ">=3.8"
+requires-python = ">=3.7"
 description = "Why you paste that - a pastebin scraper"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -103,7 +103,7 @@ max-line-length = 88
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = py38,py39,py310,py311,pre-commit
+envlist = py37,py38,py39,py310,py311,pre-commit
 skip_missing_interpreters = true
 isolated_build = True
 
