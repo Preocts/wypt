@@ -5,18 +5,14 @@ from __future__ import annotations
 
 import logging
 import re
-from sqlite3 import Connection
 from typing import Generator
 from typing import Protocol
 from typing import Sequence
 
-from .database import Database
 from .model import BaseModel
 from .model import Match
 from .model import Meta
 from .model import Paste
-from .pastebin_api import PastebinAPI
-from .pattern_config import PatternConfig
 
 
 class _Database(Protocol):
@@ -161,25 +157,3 @@ class PasteScanner:
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
         self._to_pull = self._database.get_difference("meta", "paste", limit=100)
-
-
-if __name__ == "__main__":
-    logging.basicConfig(level="DEBUG")
-
-    # Connect to and build database
-    dbconn = Connection("wypt_datebase.sqlite3")
-    database = Database(dbconn)
-    database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-    database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
-    database.add_table("match", "tables/match_database_tbl.sql", Match)
-
-    # Load pattern file
-    pattern_config = PatternConfig()
-
-    # Create API client
-    api = PastebinAPI()
-
-    # Create controller
-    gatherer = PasteScanner(database, pattern_config, api, save_paste_content=True)
-
-    gatherer.run()
