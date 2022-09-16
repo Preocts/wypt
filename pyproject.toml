@@ -52,8 +52,8 @@ homepage = "https://github.com/Preocts/wypt"
 "wypt.tables" = ["*.sql"]
 
 # CLI scripts if needed
-# [project.scripts]
-# python-src-example = "module_name.sample:main"
+[project.scripts]
+wypt-scan = "wypt.cli:scan"
 
 [tool.setuptools.packages.find]
 where = ["src"]  # ["."] by default
