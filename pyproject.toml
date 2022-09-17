@@ -113,7 +113,7 @@ commands =
     coverage erase
     coverage run -m pytest {posargs:tests}
     coverage xml
-    coverage report --skip-covered --skip-empty -m
+    coverage report --skip-empty -m
 
 [testenv:pre-commit]
 skip_install = true
