@@ -29,6 +29,7 @@ ITEM_THROTTLE = 1
 # Cooldown, in seconds, required between item meta scraping
 META_THROTTLE = 1
 DEFAULT_LIMIT = 100
+DEFAULT_TIMEOUT = 10
 
 
 class PastebinAPI:
@@ -43,7 +44,7 @@ class PastebinAPI:
         Keyword Args:
             last_call: Unix time of last action. Defaults to 'now'
         """
-        self._http = httpx.Client(timeout=3, follow_redirects=False)
+        self._http = httpx.Client(timeout=DEFAULT_TIMEOUT, follow_redirects=False)
         self._batch = last_call if last_call is not None else int(time.time())
         self._single = last_call if last_call is not None else int(time.time())
 
@@ -190,11 +191,18 @@ class PastebinAPI:
         self,
         route: str,
         params: dict[str, str] | None = None,
+        *,
+        reconnect: bool = False,
     ) -> httpx.Response:
         """Handle GET request to pastebin."""
         url = f"{self.base_url}/{route}"
         self.logger.debug("GET - %s - with %s", url, params)
-        resp = self._http.get(url, params=params)
+        try:
+            resp = self._http.get(url, params=params)
+        except httpx.ReadTimeout:
+            self.logger.warning("ReadTimeout, file too large or lagged.")
+            # Create an empty response to allow process to continue
+            return httpx.Response(204, content="{}")
 
         if not resp.is_success:
             self._response_error(resp.text, resp.status_code)
