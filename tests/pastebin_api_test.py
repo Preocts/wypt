@@ -6,6 +6,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+from httpx import ReadTimeout
 from httpx import Response
 from wypt.exceptions import ResponseError
 from wypt.exceptions import ThrottleError
@@ -182,3 +183,12 @@ def test_scrape_meta_returns_none_on_invalid_success(client: PastebinAPI) -> Non
 
         assert mock_http.call_count == 1
         assert result is None
+
+
+def test_get_request_timeout_returns_empty(client: PastebinAPI) -> None:
+    with patch.object(client._http, "get", side_effect=ReadTimeout("Timed out")):
+
+        result = client._get_request("/mock")
+
+    assert result.status_code == 204
+    assert result.json() == {}
