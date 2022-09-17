@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Generator
 
-import toml
+import tomli
 
 
 class PatternConfig:
@@ -33,7 +33,7 @@ class PatternConfig:
     def _load_config(self, fp: str) -> dict[str, str]:
         """Load toml file or return empty dict on failure."""
         try:
-            return toml.load(Path(fp).open())["PATTERNS"]
+            return tomli.load(Path(fp).open("rb"))["PATTERNS"]
 
         except KeyError:
             print("*" * 79)
@@ -42,7 +42,7 @@ class PatternConfig:
         except FileNotFoundError:
             self.logger.error("Pattern config file not found: '%s'", fp)
 
-        except toml.TomlDecodeError as err:
+        except tomli.TOMLDecodeError as err:
             self.logger.error("Invalid toml format in %s - '%s'", fp, err)
 
         return {}
