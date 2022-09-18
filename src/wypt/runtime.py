@@ -46,13 +46,12 @@ class Runtime:
 
     def connect_database(self, database_file: str = ":memory:") -> Database:
         """Connect to sqlite3 database. Uses in-memory location by default."""
-        if self._database is None:
-            # Connect to and build database
-            dbconn = Connection(self.get_config().database_file)
-            self._database = Database(dbconn)
-            self._database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-            self._database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
-            self._database.add_table("match", "tables/match_database_tbl.sql", Match)
+        # Connect to and build database
+        dbconn = Connection(database_file)
+        self._database = Database(dbconn)
+        self._database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
+        self._database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
+        self._database.add_table("match", "tables/match_database_tbl.sql", Match)
         return self._database
 
     def load_config(self, config_file: str = "wypt.toml") -> _Config:
