@@ -13,12 +13,13 @@ class _Config:
     logging_level: str = "WARNING"
     logging_format: str = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
     retain_posts_for_days: int = 1
+    database_file: str = "wypt_database.sqlite3"
 
 
 class Runtime:
     """Runtime setup actions and config loading."""
 
-    def __init__(self, config_file: str = "wypt.toml") -> None:
+    def __init__(self) -> None:
         """Provide runtime setup utility."""
         self.config = _Config()
 
