@@ -1,0 +1,4 @@
+[CONFIG]
+logging_level = "INFO"
+logging_format = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
+retain_posts_for_days = 99
