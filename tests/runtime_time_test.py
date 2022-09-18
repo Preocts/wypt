@@ -39,10 +39,19 @@ def test_set_logging_tests_nothing_but_here_we_are() -> None:
     runtime.set_logging()
 
 
-def test_connect_database() -> None:
+def test_connect_database_returns_database_object() -> None:
     runtime = Runtime()
 
     result = runtime.connect_database()
 
     assert isinstance(result, Database)
     assert result is runtime._database
+
+
+def test_get_database_returns_cached_copy_of_database() -> None:
+    runtime = Runtime()
+
+    database = runtime.get_database()
+    database_too = runtime.get_database()
+
+    assert database is database_too
