@@ -8,10 +8,7 @@ from wypt.pattern_config import PatternConfig
 
 LABELS = {
     "Basic Email",
-    "Master Card",
-    "VISA Card",
     "Broken Pattern",
-    "AMEX Card",
     "Discord Webhook",
     "JWT Token",
 }
