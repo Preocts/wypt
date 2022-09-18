@@ -4,12 +4,6 @@ from wypt.runtime import _Config
 from wypt.runtime import Runtime
 
 
-def test_default_config_on_init() -> None:
-    runtime = Runtime()
-
-    assert _Config() == runtime.config
-
-
 def test_load_config() -> None:
     runtime = Runtime()
 

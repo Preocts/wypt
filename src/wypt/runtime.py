@@ -4,6 +4,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import tomli
 
@@ -22,15 +23,22 @@ class Runtime:
 
     def __init__(self) -> None:
         """Provide runtime setup utility."""
-        self.config = _Config()
+        self._config: _Config | None = None
+
+    @property
+    def config(self) -> _Config:
+        """Return loaded config, will load default if not already loaded."""
+        if self._config is None:
+            self._config = self.load_config()
+        return self._config
 
     def load_config(self, config_file: str = "wypt.toml") -> _Config:
         """Load config and set logging. Uses defaults if not found."""
         _config_file = Path(config_file)
+        config: dict[str, Any] = {}
         if _config_file.exists():
-            config = tomli.load(_config_file.open("rb")).get("CONFIG")
-            self.config = _Config(**config) if config else _Config()
-        return self.config
+            config = tomli.load(_config_file.open("rb")).get("CONFIG") or {}
+        return _Config(**config) if config else _Config()
 
     def set_logging(self) -> None:
         """Set root logging with defined format."""
