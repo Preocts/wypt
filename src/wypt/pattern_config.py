@@ -14,7 +14,7 @@ class PatternConfig:
 
     logger = logging.getLogger(__name__)
 
-    def __init__(self, pattern_config_file: str = "wypt_patterns.toml") -> None:
+    def __init__(self, pattern_config_file: str = "wypt.toml") -> None:
         """Load and compile patterns config."""
         filters = self._load_config(pattern_config_file)
         self._patterns = self._compile_patterns(filters)
