@@ -27,7 +27,7 @@ def scan() -> int:
     database.add_table("match", "tables/match_database_tbl.sql", Match)
 
     # Load pattern file
-    pattern_config = PatternConfig()
+    pattern_config = PatternConfig(runtime.config.pattern_file)
 
     # Create API client
     api = PastebinAPI()

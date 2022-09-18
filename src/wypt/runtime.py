@@ -12,8 +12,9 @@ import tomli
 class _Config:
     logging_level: str = "WARNING"
     logging_format: str = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-    retain_posts_for_days: int = 1
     database_file: str = "wypt_database.sqlite3"
+    pattern_file: str = "wypt.toml"
+    retain_posts_for_days: int = 1
 
 
 class Runtime:
