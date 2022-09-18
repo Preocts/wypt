@@ -21,8 +21,8 @@ MISSING = "Broken Pattern"
 @pytest.mark.parametrize(
     ("file", "logtext", "expected"),
     (
-        ("tests/fixture/test_filters.toml", "", LABELS),
-        ("tests/fixture/test_filters.toml.no.there", "config file not found", set()),
+        ("tests/fixture/wypt.toml", "", LABELS),
+        ("tests/fixture/wypt.toml.no.there", "config file not found", set()),
         ("tests/pattern_config_test.py", "Invalid toml format", set()),
         ("pyproject.toml", "section missing from", set()),
     ),
@@ -38,7 +38,7 @@ def test_load_config(caplog: Any, file: str, logtext: str, expected: set[str]) -
 
 
 def test_pattern_iter() -> None:
-    scanner = PatternConfig("tests/fixture/test_filters.toml")
+    scanner = PatternConfig("tests/fixture/wypt.toml")
 
     labels = {label for label, _ in scanner.pattern_iter()}
 
@@ -47,7 +47,7 @@ def test_pattern_iter() -> None:
 
 def test_compile_patterns() -> None:
     scanner = PatternConfig()
-    filters = scanner._load_config("tests/fixture/test_filters.toml")
+    filters = scanner._load_config("tests/fixture/wypt.toml")
 
     patterns = scanner._compile_patterns(filters)
 
