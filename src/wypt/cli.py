@@ -20,14 +20,14 @@ runtime.set_logging()
 def scan() -> int:
     """Point of entry for paste scanning."""
     # Connect to and build database
-    dbconn = Connection(runtime.config.database_file)
+    dbconn = Connection(runtime.get_config().database_file)
     database = Database(dbconn)
     database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
     database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
     database.add_table("match", "tables/match_database_tbl.sql", Match)
 
     # Load pattern file
-    pattern_config = PatternConfig(runtime.config.pattern_file)
+    pattern_config = PatternConfig(runtime.get_config().pattern_file)
 
     # Create API client
     api = PastebinAPI()
