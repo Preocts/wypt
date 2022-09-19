@@ -28,6 +28,8 @@ class _Config:
 class Runtime:
     """Runtime setup actions and config loading."""
 
+    logger = logging.getLogger(__name__)
+
     def __init__(self) -> None:
         """Provide runtime setup utility."""
         self._config: _Config | None = None
@@ -64,19 +66,13 @@ class Runtime:
 
     def load_config(self, config_file: str = "wypt.toml") -> _Config:
         """Load and return config file. Uses defaults if not found."""
-        _config_file = Path(config_file)
-        config: dict[str, Any] = {}
-        if _config_file.exists():
-            config = tomli.load(_config_file.open("rb")).get("CONFIG") or {}
+        config = self._load_toml_section(config_file, "CONFIG")
         self._config = _Config(**config) if config else _Config()
         return self._config
 
     def load_patterns(self, pattern_file: str = "wypt.toml") -> PatternConfig:
         """Load and return pattern config."""
-        _pattern_file = Path(pattern_file)
-        patterns: dict[str, str] = {}
-        if _pattern_file.exists():
-            patterns = tomli.load(_pattern_file.open("rb")).get("PATTERNS") or {}
+        patterns = self._load_toml_section(pattern_file, "PATTERNS")
         self._patterns = PatternConfig(patterns)
         return self._patterns
 
@@ -87,3 +83,19 @@ class Runtime:
             level=self.get_config().logging_level,
             format=self.get_config().logging_format,
         )
+
+    def _load_toml_section(self, file_name: str, section: str) -> dict[str, Any]:
+        """Load toml, handle errors, return specific section or empty dict."""
+        try:
+            return tomli.load(Path(file_name).open("rb"))[section]
+
+        except KeyError:
+            self.logger.error("[PATTERNS] section missing from %s", file_name)
+
+        except FileNotFoundError:
+            self.logger.error("Pattern config file not found: '%s'", file_name)
+
+        except tomli.TOMLDecodeError as err:
+            self.logger.error("Invalid toml format in %s - '%s'", file_name, err)
+
+        return {}

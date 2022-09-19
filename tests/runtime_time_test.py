@@ -1,11 +1,15 @@
 from __future__ import annotations
 
+from typing import Any
+
+import pytest
 from wypt.database import Database
 from wypt.pattern_config import PatternConfig
 from wypt.runtime import _Config
 from wypt.runtime import Runtime
 
 TEST_CONFIG = "tests/fixture/wypt.toml"
+TEST_PATTERNS = {"Basic Email", "Broken Pattern", "Discord Webhook", "JWT Token"}
 
 
 def test_load_config() -> None:
@@ -76,3 +80,27 @@ def test_get_patterns_returns_cached_copy() -> None:
     patterns_too = runtime.get_patterns()
 
     assert patterns is patterns_too
+
+
+@pytest.mark.parametrize(
+    ("file", "logtext", "expected"),
+    (
+        ("tests/fixture/wypt.toml", "", TEST_PATTERNS),
+        ("tests/fixture/wypt.toml.no.there", "config file not found", set()),
+        ("tests/pattern_config_test.py", "Invalid toml format", set()),
+        ("pyproject.toml", "section missing from", set()),
+    ),
+)
+def test_load_toml_section(
+    caplog: Any,
+    file: str,
+    logtext: str,
+    expected: set[str],
+) -> None:
+    runtime = Runtime()
+
+    results = runtime._load_toml_section(file, "PATTERNS")
+    labels = set(results.keys())
+
+    assert labels == expected
+    assert logtext in caplog.text
