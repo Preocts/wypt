@@ -86,7 +86,7 @@ def test_get_patterns_returns_cached_copy() -> None:
     ("file", "logtext", "expected"),
     (
         ("tests/fixture/wypt.toml", "", TEST_PATTERNS),
-        ("tests/fixture/wypt.toml.no.there", "config file not found", set()),
+        ("tests/fixture/wypt.toml.no.there", "Config file not found", set()),
         ("tests/pattern_config_test.py", "Invalid toml format", set()),
         ("pyproject.toml", "section missing from", set()),
     ),

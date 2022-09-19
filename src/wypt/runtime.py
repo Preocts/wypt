@@ -90,10 +90,10 @@ class Runtime:
             return tomli.load(Path(file_name).open("rb"))[section]
 
         except KeyError:
-            self.logger.error("[PATTERNS] section missing from %s", file_name)
+            self.logger.error("[%s] section missing from %s", section, file_name)
 
         except FileNotFoundError:
-            self.logger.error("Pattern config file not found: '%s'", file_name)
+            self.logger.error("Config file not found: '%s'", file_name)
 
         except tomli.TOMLDecodeError as err:
             self.logger.error("Invalid toml format in %s - '%s'", file_name, err)
