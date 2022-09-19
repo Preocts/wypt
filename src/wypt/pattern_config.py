@@ -3,10 +3,7 @@ from __future__ import annotations
 
 import logging
 import re
-from pathlib import Path
 from typing import Generator
-
-import tomli
 
 
 class PatternConfig:
@@ -14,10 +11,9 @@ class PatternConfig:
 
     logger = logging.getLogger(__name__)
 
-    def __init__(self, pattern_config_file: str = "wypt.toml") -> None:
-        """Load and compile patterns config."""
-        filters = self._load_config(pattern_config_file)
-        self._patterns = self._compile_patterns(filters)
+    def __init__(self, patterns: dict[str, str]) -> None:
+        """Compile patterns from labal: pattern."""
+        self._patterns = self._compile_patterns(patterns)
 
     def _compile_patterns(self, filters: dict[str, str]) -> dict[str, re.Pattern[str]]:
         """Compile patterns found in loaded config."""
@@ -29,23 +25,6 @@ class PatternConfig:
                 self.logger.warning("Invalid pattern: %s - '%s'", key, value)
         self.logger.debug("Compiled %d of %d filters", len(rlt), len(filters))
         return rlt
-
-    def _load_config(self, fp: str) -> dict[str, str]:
-        """Load toml file or return empty dict on failure."""
-        try:
-            return tomli.load(Path(fp).open("rb"))["PATTERNS"]
-
-        except KeyError:
-            print("*" * 79)
-            self.logger.error("[PATTERNS] section missing from %s", fp)
-
-        except FileNotFoundError:
-            self.logger.error("Pattern config file not found: '%s'", fp)
-
-        except tomli.TOMLDecodeError as err:
-            self.logger.error("Invalid toml format in %s - '%s'", fp, err)
-
-        return {}
 
     def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
         """Iterater of compliled pattern. Returns (Pattern Label, re.Pattern)"""
