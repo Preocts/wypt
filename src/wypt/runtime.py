@@ -13,6 +13,7 @@ from .database import Database
 from .model import Match
 from .model import Meta
 from .model import Paste
+from .pattern_config import PatternConfig
 
 
 @dataclass(frozen=True)
@@ -31,6 +32,7 @@ class Runtime:
         """Provide runtime setup utility."""
         self._config: _Config | None = None
         self._database: Database | None = None
+        self._patterns: PatternConfig | None = None
 
     def get_config(self) -> _Config:
         """Return loaded config, will load default if not already loaded."""
@@ -43,6 +45,12 @@ class Runtime:
         if self._database is None:
             self._database = self.connect_database()
         return self._database
+
+    def get_patterns(self) -> PatternConfig:
+        """Return loaded pattern config, will load default location in not loaded."""
+        if self._patterns is None:
+            self._patterns = self.load_patterns()
+        return self._patterns
 
     def connect_database(self, database_file: str = ":memory:") -> Database:
         """Connect to sqlite3 database. Uses in-memory location by default."""
@@ -62,6 +70,15 @@ class Runtime:
             config = tomli.load(_config_file.open("rb")).get("CONFIG") or {}
         self._config = _Config(**config) if config else _Config()
         return self._config
+
+    def load_patterns(self, pattern_file: str = "wypt.toml") -> PatternConfig:
+        """Load and return pattern config."""
+        _pattern_file = Path(pattern_file)
+        patterns: dict[str, str] = {}
+        if _pattern_file.exists():
+            patterns = tomli.load(_pattern_file.open("rb")).get("PATTERNS") or {}
+        self._patterns = PatternConfig(patterns)
+        return self._patterns
 
     def set_logging(self) -> None:
         """Set root logging with defined format."""
