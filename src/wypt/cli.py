@@ -3,7 +3,6 @@ from __future__ import annotations
 
 from .paste_scanner import PasteScanner
 from .pastebin_api import PastebinAPI
-from .pattern_config import PatternConfig
 from .runtime import Runtime
 
 runtime = Runtime()
@@ -18,7 +17,7 @@ def scan() -> int:
     database = runtime.connect_database(config.database_file)
 
     # Load pattern file
-    pattern_config = PatternConfig(runtime.get_config().pattern_file)
+    pattern_config = runtime.get_patterns()
 
     # Create API client
     api = PastebinAPI()
