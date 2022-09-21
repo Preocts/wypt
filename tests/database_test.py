@@ -41,7 +41,6 @@ def db() -> Database:
     database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
     database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
     database.add_table("match", "tables/match_database_tbl.sql", Match)
-
     return database
 
 
@@ -128,3 +127,23 @@ def test_metadb_get_keys_to_fetch(db: Database) -> None:
 def test_table_guard_raises(db: Database) -> None:
     with pytest.raises(KeyError):
         db._table_guard("nothere")
+
+
+def test_max_id(db: Database) -> None:
+    result = db.max_id("paste")
+
+    assert result == 0
+
+
+def test_get_return_uuid_and_paginates(db: Database) -> None:
+    rows_insert = [Paste("abc", "test1"), Paste("zyx", "test2")]
+    db.insert_many("paste", rows_insert)
+
+    row01, uuid1 = db.get("paste", limit=1)
+    row02, uuid2 = db.get("paste", uuid1)
+
+    assert len(row01) == 1
+    assert len(row02) == 1
+    assert row01[0] == rows_insert[0]
+    assert row02[0] == rows_insert[1]
+    assert uuid2 is None
