@@ -9,6 +9,7 @@ from sqlite3 import IntegrityError
 from typing import Generator
 from typing import NoReturn
 from typing import Sequence
+from uuid import uuid4
 
 from .model import BaseModel
 
@@ -18,6 +19,7 @@ class Database:
         """Read/Write actions to the sqlite3 database."""
         self._dbconn = database_connection
         self._tables: dict[str, type[BaseModel]] = {}
+        self._nexts: dict[str, int] = {}
 
     def add_table(self, table: str, sql_file: str, model: type[BaseModel]) -> None:
         """
@@ -40,11 +42,18 @@ class Database:
             print(str(row))
 
     def row_count(self, table: str) -> int:
-        """Current count of rows in database."""
+        """Current count of rows in table."""
         self._table_guard(table)
         with self.cursor() as cursor:
             query = cursor.execute(f"SELECT count(*) FROM {table}")
             return query.fetchone()[0]
+
+    def max_id(self, table: str) -> int:
+        """Current max row_id in table."""
+        self._table_guard(table)
+        with self.cursor() as cursor:
+            query = cursor.execute(f"SELECT max(rowid) FROM {table}")
+            return query.fetchone()[0] or 0
 
     def _create_table(self, sql_file: str) -> None:
         """Create table in database if it does not exist."""
@@ -88,6 +97,46 @@ class Database:
                     failures.append(idx)
 
         return tuple(failures)
+
+    def get(
+        self,
+        table: str,
+        next_: str | None = None,
+        limit: int = 100,
+    ) -> tuple[list[BaseModel], str | None]:
+        """
+        Get rows starting at idx stored next counter or 0 if not provided.
+
+        `next_` is expected to be a UUID used as a lookup for return next
+        values in database.
+
+        Returns:
+            list[BaseModel],
+            string UUID or None if there are more results to pull
+        """
+        self._table_guard(table)
+        last_row = self._nexts.get(next_, 0) if next_ else 0
+        next_uuid: str | None = None
+        self._nexts.pop(next_ or "", None)
+
+        sql = f"SELECT *, rowid FROM {table} WHERE rowid > ? LIMIT ?"
+
+        with self.cursor() as cursor:
+            cursor.execute(sql, (last_row, limit))
+
+            rows = cursor.fetchall()
+
+        results: list[BaseModel] = []
+        for row in rows:
+            row_lst = list(row)
+            last_row = row_lst.pop()
+            results.append(self._tables[table](*row_lst))
+
+        if last_row < self.max_id(table):
+            next_uuid = str(uuid4())
+            self._nexts[next_uuid] = last_row
+
+        return results, next_uuid
 
     def get_iter(
         self,
