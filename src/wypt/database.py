@@ -102,6 +102,7 @@ class Database:
         self,
         table: str,
         next_: str | None = None,
+        *,
         limit: int = 100,
     ) -> tuple[list[BaseModel], str | None]:
         """
@@ -152,22 +153,11 @@ class Database:
         memory overhead with a tradeoff of more frequent disk I/O.
         """
         self._table_guard(table)
-        last_row_index = 0
-        with self.cursor() as cursor:
-            while "the grass grows":
-                sql = f"SELECT *, rowid FROM {table} WHERE rowid > ? LIMIT ?"
+        next_: str | None = "startloop"
+        while next_:
+            rows, next_ = self.get(table, next_, limit=limit)
 
-                cursor.execute(sql, (last_row_index, limit))
-
-                rows = cursor.fetchall()
-
-                if not rows:
-                    break
-
-                for row in rows:
-                    row_lst = list(row)
-                    last_row_index = row_lst.pop()
-                    yield self._tables[table](*row_lst)
+            yield from rows
 
     def get_difference(
         self,
