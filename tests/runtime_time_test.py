@@ -104,3 +104,12 @@ def test_load_toml_section(
 
     assert labels == expected
     assert logtext in caplog.text
+
+
+def test_get_api_returns_cached_copy() -> None:
+    runtime = Runtime()
+
+    api = runtime.get_api()
+    api_too = runtime.get_api()
+
+    assert api is api_too

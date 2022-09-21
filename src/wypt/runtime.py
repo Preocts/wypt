@@ -13,6 +13,7 @@ from .database import Database
 from .model import Match
 from .model import Meta
 from .model import Paste
+from .pastebin_api import PastebinAPI
 from .pattern_config import PatternConfig
 
 
@@ -35,6 +36,7 @@ class Runtime:
         self._config: _Config | None = None
         self._database: Database | None = None
         self._patterns: PatternConfig | None = None
+        self._pastebinapi: PastebinAPI | None = None
 
     def get_config(self) -> _Config:
         """Return loaded config, will load default if not already loaded."""
@@ -53,6 +55,20 @@ class Runtime:
         if self._patterns is None:
             self._patterns = self.load_patterns()
         return self._patterns
+
+    def get_api(self) -> PastebinAPI:
+        """Return Pastebin API providerd."""
+        if self._pastebinapi is None:
+            self._pastebinapi = PastebinAPI()
+        return self._pastebinapi
+
+    def set_logging(self) -> None:
+        """Set root logging with defined format."""
+        # Purposely use basicConfig to avoid mucking with loggers already set.
+        logging.basicConfig(
+            level=self.get_config().logging_level,
+            format=self.get_config().logging_format,
+        )
 
     def connect_database(self, database_file: str = ":memory:") -> Database:
         """Connect to sqlite3 database. Uses in-memory location by default."""
@@ -75,14 +91,6 @@ class Runtime:
         patterns = self._load_toml_section(pattern_file, "PATTERNS")
         self._patterns = PatternConfig(patterns)
         return self._patterns
-
-    def set_logging(self) -> None:
-        """Set root logging with defined format."""
-        # Purposely use basicConfig to avoid mucking with loggers already set.
-        logging.basicConfig(
-            level=self.get_config().logging_level,
-            format=self.get_config().logging_format,
-        )
 
     def _load_toml_section(self, file_name: str, section: str) -> dict[str, Any]:
         """Load toml, handle errors, return specific section or empty dict."""
