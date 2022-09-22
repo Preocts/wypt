@@ -70,10 +70,15 @@ class Runtime:
             format=self.get_config().logging_format,
         )
 
-    def connect_database(self, database_file: str = ":memory:") -> Database:
+    def connect_database(
+        self,
+        database_file: str = ":memory:",
+        *,
+        check_same_thread: bool = True,
+    ) -> Database:
         """Connect to sqlite3 database. Uses in-memory location by default."""
         # Connect to and build database
-        dbconn = Connection(database_file)
+        dbconn = Connection(database_file, check_same_thread=check_same_thread)
         self._database = Database(dbconn)
         self._database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
         self._database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
