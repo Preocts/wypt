@@ -5,9 +5,9 @@ import logging
 from typing import Any
 
 try:
-    from typing_extensions import Protocol
-except ImportError:
-    from typing import Protocol  # type: ignore
+    from typing import Protocol
+except ImportError:  # pragma: no cover
+    from typing_extensions import Protocol  # type: ignore
 
 from .model import BaseModel
 
