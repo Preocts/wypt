@@ -18,6 +18,9 @@ class Database_(Protocol):
     ) -> tuple[list[BaseModel], str | None]:
         ...
 
+    def delete_many(self, table: str, keys: list[str]) -> None:
+        ...
+
 
 class APIHandler:
     logger = logging.getLogger()
@@ -41,7 +44,8 @@ class APIHandler:
 
     def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
         """Delete selected rows from table. Always returns empty response. (204)"""
-
+        key_lst = self._clean_split(keys)
+        self._database.delete_many(table, key_lst)
         return {}
 
     @staticmethod

@@ -23,12 +23,19 @@ def test_get_table_dct_no_next(handler: APIHandler) -> None:
     assert result["next"] is None
 
 
+def test_delete_rows(handler: APIHandler) -> None:
+    result = handler.delete_table_rows("paste", "abc, egf")
+
+    assert result == {}
+
+
 @pytest.mark.parametrize(
     ("text", "expected"),
     (
         ("1, 2,\t 3", ["1", "2", "3"]),
         ("1,2,3", ["1", "2", "3"]),
         ("", []),
+        ("1", ["1"]),
     ),
 )
 def test_clean_split(text: str, expected: list[str]) -> None:
