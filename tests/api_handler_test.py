@@ -21,3 +21,16 @@ def test_get_table_dct_no_next(handler: APIHandler) -> None:
     result = handler.get_table_dct("meta", None)
 
     assert result["next"] is None
+
+
+@pytest.mark.parametrize(
+    ("text", "expected"),
+    (
+        ("1, 2,\t 3", ["1", "2", "3"]),
+        ("1,2,3", ["1", "2", "3"]),
+        ("", []),
+    ),
+)
+def test_clean_split(text: str, expected: list[str]) -> None:
+    result = APIHandler._clean_split(text)
+    assert result == expected

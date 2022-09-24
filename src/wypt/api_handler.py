@@ -27,7 +27,10 @@ class APIHandler:
         self._database = database
 
     def get_table_dct(
-        self, table: str, next_: str | None, limit: int = 100
+        self,
+        table: str,
+        next_: str | None,
+        limit: int = 100,
     ) -> dict[str, Any]:
         """Get selected table, up to 100 rows, as dictionary."""
         rows, next_ = self._database.get(table, next_, limit=limit)
@@ -35,3 +38,13 @@ class APIHandler:
             "rows": [row.to_dict() for row in rows],
             "next": next_,
         }
+
+    def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
+        """Delete selected rows from table. Always returns empty response. (204)"""
+
+        return {}
+
+    @staticmethod
+    def _clean_split(text: str, delimiter: str = ",") -> list[str]:
+        """Split text on delimeter, strips leading/trailing whitespace."""
+        return [seg.strip() for seg in text.split(delimiter)] if text else []
