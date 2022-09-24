@@ -121,3 +121,22 @@ def test_get_return_uuid_and_paginates(db: Database) -> None:
     assert row01[0] == rows_insert[0]
     assert row02[0] == rows_insert[1]
     assert uuid2 is None
+
+
+def test_delete_many(mock_database: Database) -> None:
+    rows, _ = mock_database.get("paste")
+    keys = [row.key for row in rows]
+
+    mock_database.delete_many("paste", keys)
+    validate = mock_database.row_count("paste")
+
+    assert rows
+    assert validate == 0
+
+
+def test_delete_one(mock_database: Database) -> None:
+    rows, _ = mock_database.get("paste")
+
+    mock_database.delete("paste", rows[0].key)
+
+    assert len(rows) - mock_database.row_count("paste") == 1
