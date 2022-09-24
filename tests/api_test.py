@@ -20,3 +20,10 @@ def test_get_table() -> None:
         api_module.get_table("table name", "123", 50)
 
     mock.assert_called_once_with("table name", "123", 50)
+
+
+def test_delete_table_row() -> None:
+    with patch.object(api_module.APIHandler, "delete_table_rows") as mock:
+        api_module.delete_table_row("table name", "123,234")
+
+    mock.assert_called_once_with("table name", "123,234")

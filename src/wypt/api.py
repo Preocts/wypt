@@ -22,3 +22,9 @@ def get_table(
 ) -> dict[str, str]:
     handler = APIHandler(runtime.get_database())
     return handler.get_table_dct(table, next, limit)
+
+
+@routes.delete("/database/{table}", response_class=JSONResponse)
+def delete_table_row(table: str, keys: str) -> dict[str, str]:
+    handler = APIHandler(runtime.get_database())
+    return handler.delete_table_rows(table, keys)
