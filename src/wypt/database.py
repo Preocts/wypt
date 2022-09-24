@@ -189,6 +189,32 @@ class Database:
 
         return [r[0] for r in results]
 
+    def delete(self, table: str, key: str) -> None:
+        """
+        Delete a row from the given table by their key.
+
+        Args:
+            table: Name of the table
+            key: list of keys to delete
+        """
+        self.delete_many(table, [key])
+
+    def delete_many(self, table: str, keys: list[str]) -> None:
+        """
+        Delete a list of rows from the given table by their key.
+
+        Args:
+            table: Name of the table
+            key: list of keys to delete
+        """
+        self._table_guard(table)
+
+        sql = f"DELETE FROM {table} WHERE key=?"
+        values = [[key] for key in keys]
+
+        with self.cursor(commit_on_exit=True) as cursor:
+            cursor.executemany(sql, values)
+
     def _table_guard(self, table: str) -> None | NoReturn:
         """Raise KeyError if table name has not been added to class."""
         if table not in self._tables:
