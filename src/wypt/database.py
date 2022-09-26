@@ -34,12 +34,6 @@ class Database:
         self._tables[table] = model
         self._create_table(sql_file)
 
-    def to_stdout(self, table: str) -> None:
-        """Print table to stdout, renders table model's __str__."""
-        self._table_guard(table)
-        for row in self.get_iter(table):
-            print(str(row))
-
     def row_count(self, table: str) -> int:
         """Current count of rows in table."""
         self._table_guard(table)
@@ -133,26 +127,6 @@ class Database:
             self._nexts[next_uuid] = last_row
 
         return results, next_uuid
-
-    def get_iter(
-        self,
-        table: str,
-        *,
-        limit: int = 100,
-    ) -> Generator[BaseModel, None, None]:
-        """
-        Get all rows from database via iterator.
-
-        Use the keyword arg `limit` to control the maximum number of rows
-        fetched from database at a time. The lower the number the lower
-        memory overhead with a tradeoff of more frequent disk I/O.
-        """
-        self._table_guard(table)
-        next_: str | None = "startloop"
-        while next_:
-            rows, next_ = self.get(table, next_, limit=limit)
-
-            yield from rows
 
     def get_difference(
         self,

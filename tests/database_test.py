@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import json
-from contextlib import redirect_stdout
-from io import StringIO
 from random import choice
 
 import pytest
 from wypt.database import Database
-from wypt.model import BaseModel
 from wypt.model import Meta
 from wypt.model import Paste
 
@@ -50,34 +47,6 @@ def test_insert_many_with_failure(db: Database, table_data: T_Data) -> None:
     db.insert_many(table, models)
 
     assert db.row_count(table) == expected_len
-
-
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_get_iter(db: Database, table_data: T_Data) -> None:
-    table, models = table_data
-    db.insert_many(table, models)
-
-    row_results: list[BaseModel] = []
-    for row in db.get_iter(table, limit=1):
-        row_results.append(row)
-
-    for (model, result) in zip(models, row_results):
-        assert model == result
-
-
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_to_stdout(db: Database, table_data: T_Data) -> None:
-    table, models = table_data
-    capture = StringIO()
-    # This, ideally, should not duplicate the insert_many test but here we are :(
-    expected_len = len(models)
-    db.insert_many(table, models)
-
-    with redirect_stdout(capture):
-        db.to_stdout(table)
-
-    lines = [line for line in capture.getvalue().split("\n") if line]
-    assert len(lines) == expected_len
 
 
 def test_metadb_get_keys_to_fetch(db: Database) -> None:
