@@ -33,12 +33,10 @@ def test_insert_row(db: Database, table_data: T_Data) -> None:
     table = table_data[0]
     row = choice(table_data[1])
 
-    initial = db.insert(table, row)
-    duplicate = db.insert(table, row)
+    db.insert(table, row)
+    db.insert(table, row)
     row_count = db.row_count(table)
 
-    assert initial is True
-    assert duplicate is False
     assert row_count == 1
 
 
@@ -49,11 +47,9 @@ def test_insert_many_with_failure(db: Database, table_data: T_Data) -> None:
     # Create new list here to prevent pollution
     models = models + [models[0]]
 
-    results = db.insert_many(table, models)
+    db.insert_many(table, models)
 
     assert db.row_count(table) == expected_len
-    assert len(results) == 1
-    assert results[0] == expected_len  # Last entry is duplicate
 
 
 @pytest.mark.parametrize("table_data", TABLE_DATA)

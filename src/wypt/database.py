@@ -5,7 +5,6 @@ from contextlib import contextmanager
 from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Cursor
-from sqlite3 import IntegrityError
 from typing import Generator
 from typing import NoReturn
 from typing import Sequence
@@ -74,29 +73,25 @@ class Database:
                 self._dbconn.commit()
             cursor.close()
 
-    def insert(self, table: str, row_data: BaseModel) -> bool:
+    def insert(self, table: str, row_data: BaseModel) -> None:
         """Insert paste into table, returns false on failure."""
         # If insert_many returns no failues, insert had success.
-        return not (self.insert_many(table, [row_data]))
+        self.insert_many(table, [row_data])
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
         """Insert many pastes into table, returns index of failures if any."""
         self._table_guard(table)
         model_dct = rows[0].to_dict()
         columns = ",".join(list(model_dct.keys()))
         values_ph = ",".join(["?" for _ in model_dct.keys()])
-        failures: list[int] = []
-        for idx, row in enumerate(rows):
-            values = list(row.to_dict().values())
-            sql = f"INSERT INTO {table} ({columns}) VALUES({values_ph})"
 
-            with self.cursor(commit_on_exit=True) as cursor:
-                try:
-                    cursor.execute(sql, values)
-                except IntegrityError:
-                    failures.append(idx)
+        values = [list(row.to_dict().values()) for row in rows]
+        print(values)
 
-        return tuple(failures)
+        sql = f"INSERT OR IGNORE INTO {table} ({columns}) VALUES({values_ph})"
+
+        with self.cursor(commit_on_exit=True) as cursor:
+            cursor.executemany(sql, values)
 
     def get(
         self,
