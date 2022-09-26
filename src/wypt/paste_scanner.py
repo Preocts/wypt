@@ -21,10 +21,10 @@ from .model import Paste
 
 
 class _Database(Protocol):
-    def insert(self, table: str, row_data: BaseModel) -> bool:
+    def insert(self, table: str, row_data: BaseModel) -> None:
         ...
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
         ...
 
     def get_difference(
@@ -120,8 +120,8 @@ class PasteScanner:
         results = self._pastebin_api.scrape()
 
         if results:
-            result = self._database.insert_many("meta", results)
-            self.logger.info("Discovered %d new meta rows.", len(results) - len(result))
+            self._database.insert_many("meta", results)
+            self.logger.info("Discovered %d meta rows, stored new.", len(results))
             self._hydrate_to_pull()
 
     def _run_scrape_item(self) -> None:

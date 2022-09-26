@@ -1,3 +1,5 @@
+# docker run -d --name wypt-run -p 80:80 -m 512m wypt-first
+
 FROM python:3.10-slim as builder
 WORKDIR /wypt-api
 RUN python -m pip install --no-cache-dir --upgrade pytest tox build

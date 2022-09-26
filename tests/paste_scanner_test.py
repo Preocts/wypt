@@ -45,10 +45,10 @@ class MockPatternConfig:
 
 
 class MockDatabase:
-    def insert(self, table: str, row_data: BaseModel) -> bool:
+    def insert(self, table: str, row_data: BaseModel) -> None:
         raise NotImplementedError()
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> tuple[int, ...]:
+    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
         raise NotImplementedError()
 
     def get_difference(

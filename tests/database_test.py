@@ -1,13 +1,10 @@
 from __future__ import annotations
 
 import json
-from contextlib import redirect_stdout
-from io import StringIO
 from random import choice
 
 import pytest
 from wypt.database import Database
-from wypt.model import BaseModel
 from wypt.model import Meta
 from wypt.model import Paste
 
@@ -33,12 +30,10 @@ def test_insert_row(db: Database, table_data: T_Data) -> None:
     table = table_data[0]
     row = choice(table_data[1])
 
-    initial = db.insert(table, row)
-    duplicate = db.insert(table, row)
+    db.insert(table, row)
+    db.insert(table, row)
     row_count = db.row_count(table)
 
-    assert initial is True
-    assert duplicate is False
     assert row_count == 1
 
 
@@ -49,39 +44,9 @@ def test_insert_many_with_failure(db: Database, table_data: T_Data) -> None:
     # Create new list here to prevent pollution
     models = models + [models[0]]
 
-    results = db.insert_many(table, models)
+    db.insert_many(table, models)
 
     assert db.row_count(table) == expected_len
-    assert len(results) == 1
-    assert results[0] == expected_len  # Last entry is duplicate
-
-
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_get_iter(db: Database, table_data: T_Data) -> None:
-    table, models = table_data
-    db.insert_many(table, models)
-
-    row_results: list[BaseModel] = []
-    for row in db.get_iter(table, limit=1):
-        row_results.append(row)
-
-    for (model, result) in zip(models, row_results):
-        assert model == result
-
-
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_to_stdout(db: Database, table_data: T_Data) -> None:
-    table, models = table_data
-    capture = StringIO()
-    # This, ideally, should not duplicate the insert_many test but here we are :(
-    expected_len = len(models)
-    db.insert_many(table, models)
-
-    with redirect_stdout(capture):
-        db.to_stdout(table)
-
-    lines = [line for line in capture.getvalue().split("\n") if line]
-    assert len(lines) == expected_len
 
 
 def test_metadb_get_keys_to_fetch(db: Database) -> None:
