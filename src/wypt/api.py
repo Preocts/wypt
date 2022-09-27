@@ -9,7 +9,7 @@ from .runtime import Runtime
 # Setup runtime
 runtime = Runtime()
 runtime.load_config()
-runtime.connect_database(runtime.get_config().database_file, check_same_thread=False)
+runtime.set_database(runtime.get_config().database_file)
 
 routes = FastAPI(title="wypt API", version="1")
 

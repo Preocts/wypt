@@ -49,7 +49,7 @@ def test_set_logging_tests_nothing_but_here_we_are() -> None:
 def test_connect_database_returns_database_object() -> None:
     runtime = Runtime()
 
-    result = runtime.connect_database()
+    result = runtime._connect_database()
 
     assert isinstance(result, Database)
     assert result is runtime._database
@@ -113,3 +113,11 @@ def test_get_api_returns_cached_copy() -> None:
     api_too = runtime.get_api()
 
     assert api is api_too
+
+
+def test_set_database() -> None:
+    runtime = Runtime()
+
+    runtime.set_database("testing")
+
+    assert runtime._database_file == "testing"
