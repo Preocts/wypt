@@ -34,6 +34,7 @@ class Runtime:
     def __init__(self) -> None:
         """Provide runtime setup utility."""
         self._config: _Config | None = None
+        self._database_file = ":memory:"
         self._database: Database | None = None
         self._patterns: PatternConfig | None = None
         self._pastebinapi: PastebinAPI | None = None
@@ -45,9 +46,9 @@ class Runtime:
         return self._config
 
     def get_database(self) -> Database:
-        """Return connected database, will connect in-memory if not connected."""
+        """Return connected database, will connect if needed."""
         if self._database is None:
-            self._database = self.connect_database()
+            self._database = self._connect_database()
         return self._database
 
     def get_patterns(self) -> PatternConfig:
@@ -62,6 +63,10 @@ class Runtime:
             self._pastebinapi = PastebinAPI()
         return self._pastebinapi
 
+    def set_database(self, database_file: str = ":memory:") -> None:
+        """Set the file target for the sqlite3 database."""
+        self._database_file = database_file
+
     def set_logging(self) -> None:
         """Set root logging with defined format."""
         # Purposely use basicConfig to avoid mucking with loggers already set.
@@ -70,14 +75,15 @@ class Runtime:
             format=self.get_config().logging_format,
         )
 
-    def connect_database(
+    def _connect_database(
         self,
-        database_file: str = ":memory:",
+        database_file: str | None = None,
         *,
-        check_same_thread: bool = True,
+        check_same_thread: bool = False,
     ) -> Database:
         """Connect to sqlite3 database. Uses in-memory location by default."""
         # Connect to and build database
+        database_file = database_file if database_file else self._database_file
         dbconn = Connection(database_file, check_same_thread=check_same_thread)
         self._database = Database(dbconn)
         self._database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
