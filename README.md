@@ -4,7 +4,6 @@
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/Preocts/wypt/main.svg)](https://results.pre-commit.ci/latest/github/Preocts/wypt/main)
 [![Python package](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml/badge.svg?branch=main)](https://github.com/Preocts/wypt/actions/workflows/python-tests.yml)
-[![codecov](https://codecov.io/github/Preocts/wypt/branch/main/graph/badge.svg?token=GTA21BEXOB)](https://codecov.io/github/Preocts/wypt)
 
 # WORK IN PROGRESS
 
