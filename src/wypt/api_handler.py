@@ -6,7 +6,7 @@ from typing import Any
 
 try:
     from typing import Protocol
-except ImportError:  # pragma: no cover
+except ImportError:
     from typing_extensions import Protocol  # type: ignore
 
 from .model import BaseModel
