@@ -59,13 +59,11 @@ class MockDatabase:
 
 @pytest.fixture
 def ps() -> PasteScanner:
-
     return PasteScanner(MockDatabase(), MockPatternConfig(), MockPastebinAPI())
 
 
 def test_run(ps: PasteScanner) -> None:
     with patch.object(ps, "_run") as mock:
-
         ps.run()
 
     assert mock.call_count == 1
@@ -91,7 +89,6 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert") as mock_paste_db:
                 with patch.object(ps._database, "insert_many") as mock_meta_db:
-
                     ps._run_scrape_item()
 
     assert mock_paste_db.call_count == 1
@@ -106,7 +103,6 @@ def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert") as mock_paste_db:
                 with patch.object(ps._database, "insert_many") as mock_match_db:
-
                     ps._run_scrape_item()
 
     assert mock_paste_db.call_count == 1
