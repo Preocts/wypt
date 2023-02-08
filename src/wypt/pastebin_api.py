@@ -33,7 +33,6 @@ DEFAULT_TIMEOUT = 10
 
 
 class PastebinAPI:
-
     logger = logging.getLogger(__name__)
     base_url = "https://scrape.pastebin.com"
 
