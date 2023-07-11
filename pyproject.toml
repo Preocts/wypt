@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wypt"
 version = "0.0.1"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 description = "Why you paste that - a pastebin scraper"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -19,26 +19,15 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython"
 ]
-dynamic = ["dependencies"]
+# Dynamic dependencies are loaded from requirements*.txt files
+dynamic = ["dependencies", "optional-dependencies"]
 
-[tool.setuptools.dynamic]
-dependencies = {file = ["requirements.txt"]}
+[tool.setuptools.dynamic.dependencies]
+file = ["requirements/requirements.txt"]
 
-[project.optional-dependencies]
-dev = [
-    "pre-commit",
-    "black",
-    "mypy",
-    "types-toml",
-    "flake8",
-    "flake8-builtins",
-]
-test = [
-    "pytest",
-    "pytest-randomly",
-    "coverage",
-    "tox"
-]
+[tool.setuptools.dynamic.optional-dependencies]
+dev = {file = ["requirements/requirements-dev.txt"]}
+test = {file = ["requirements/requirements-test.txt"]}
 
 [project.urls]
 homepage = "https://github.com/Preocts/wypt"
@@ -74,6 +63,7 @@ warn_unused_ignores = true
 module = "tests.*"
 disallow_incomplete_defs = false
 disallow_untyped_defs = false
+warn_unused_ignores = false
 
 [tool.coverage.run]
 branch = true
@@ -100,42 +90,5 @@ exclude_lines =[
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
     "\\.\\.\\.",
+    "if TYPE_CHECKING:",
 ]
-ignore_errors = true
-
-[tool.coverage.html]
-directory = "coverage_html_report"
-
-[tool.coverage.xml]
-output = "coverage.xml"
-
-# This is ignored by flake8, here in case they decide to add it in the future
-[tool.flake8]
-ignore = "W503,E203"
-max-line-length = 88
-
-[tool.tox]
-legacy_tox_ini = """
-[tox]
-envlist = py37,py38,py39,py310,py311,coverage,pre-commit
-skip_missing_interpreters = true
-isolated_build = True
-[testenv]
-deps = .[test]
-commands =
-    coverage run -p -m pytest tests/
-[testenv:coverage]
-depends = py37,py38,py39,py310,py311
-parallel_show_output = true
-commands =
-    python -m coverage combine
-    python -m coverage report -m --fail-under=50
-    python -m coverage json
-    python -m coverage html
-[testenv:pre-commit]
-depends = coverage
-parallel_show_output = true
-skip_install = true
-deps = pre-commit
-commands = pre-commit run --all-files --show-diff-on-failure
-"""
