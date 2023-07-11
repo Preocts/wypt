@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+
 from wypt.api_handler import APIHandler
 from wypt.database import Database
 

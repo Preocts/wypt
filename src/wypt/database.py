@@ -1,13 +1,13 @@
 """Read/Write actions to the sqlite3 database."""
 from __future__ import annotations
 
+from collections.abc import Generator
+from collections.abc import Sequence
 from contextlib import contextmanager
 from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Cursor
-from typing import Generator
 from typing import NoReturn
-from typing import Sequence
 from uuid import uuid4
 
 from .model import BaseModel

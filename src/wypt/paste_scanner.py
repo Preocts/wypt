@@ -5,8 +5,8 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Generator
-from typing import Sequence
+from collections.abc import Generator
+from collections.abc import Sequence
 
 try:
     from typing import Protocol

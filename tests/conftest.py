@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from sqlite3 import Connection
-from typing import List
-from typing import Tuple
+from typing import List  # noqa: PEA001
+from typing import Tuple  # noqa: PEA001
 
 import pytest
+
 from wypt.database import Database
 from wypt.model import BaseModel
 from wypt.model import Match
