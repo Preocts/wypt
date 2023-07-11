@@ -1,4 +1,4 @@
-[![Python 3.7 | 3.8 | 3.9 | 3.10](https://img.shields.io/badge/Python-3.7%20%7C%203.8%20%7C%203.9%20%7C%203.10-blue)](https://www.python.org/downloads)
+[![Python 3.8 | 3.9 | 3.10 | 3.11](https://img.shields.io/badge/Python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11-blue)](https://www.python.org/downloads)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white)](https://github.com/pre-commit/pre-commit)
 
@@ -16,9 +16,6 @@ Why'd You Paste That (wypt) is a small scraper using pastebin.com's permitted sc
 - Limits:
   - 1 action of fetching recent 100 public pastes per minute
   - 1 HTTP request action per second
-
----
-
 
 ---
 
@@ -47,12 +44,30 @@ the desired version while creating the `venv`. (e.g. `python3` or `python3.8`)
 
 ## Installation steps
 
+### Makefile
+
+This repo has a Makefile with some quality of life scripts if the system
+supports `make`.  Please note there are no checks for an active `venv` in the
+Makefile.  If you are on Windows you can install make using scoop or chocolatey.
+
+| PHONY         | Description                                                           |
+| ------------- | --------------------------------------------------------------------- |
+| `install-dev` | install development/test requirements and project as editable install |
+| `update-dev`  | regenerate requirements-*.txt (will keep existing pins)               |
+| `upgrade-dev` | attempt to update all dependencies, regenerate requirements-*.txt     |
+| `coverage`    | Run tests with coverage, generate console report                      |
+| `docker-test` | Run coverage and tests in a docker container.                         |
+| `build-dist`  | Build source distribution and wheel distribution                      |
+| `clean`       | Deletes build, tox, coverage, pytest, mypy, cache, and pyc artifacts  |
+
+
 Clone this repo and enter root directory of repo:
 
 ```console
-$ git clone https://github.com/{{ORG_NAME}}/{{REPO_NAME}}
-$ cd {{REPO_NAME}}
+$ git clone https://github.com/[ORG NAME]/[REPO NAME]
+$ cd [REPO NAME]
 ```
+
 
 Create the `venv`:
 
@@ -75,12 +90,16 @@ call the version of the interpreter used to create the `venv`
 
 Install editable library and development requirements:
 
-```console
-# Update pip and tools
-$ python -m pip install --upgrade pip
+### With Makefile:
 
-# Install editable version of library
-$ python -m pip install --editable .[dev]
+```console
+make install-dev
+```
+
+### Without Makefile:
+
+```console
+$ python -m pip install --editable .[dev,test]
 ```
 
 Install pre-commit [(see below for details)](#pre-commit):
@@ -99,10 +118,16 @@ Run pre-commit on all files:
 $ pre-commit run --all-files
 ```
 
-Run tests:
+Run tests (quick):
 
 ```console
-$ tox [-p] [-r] [-e py3x]
+$ pytest
+```
+
+Run tests (slow):
+
+```console
+$ tox
 ```
 
 Build dist:
@@ -118,19 +143,48 @@ To deactivate (exit) the `venv`:
 ```console
 $ deactivate
 ```
+
 ---
 
-## Note on flake8:
+## Updating dependencies
 
-`flake8` is included in the `requirements-dev.txt` of the project. However it
-disagrees with `black`, the formatter of choice, on max-line-length and two
-general linting errors. `.pre-commit-config.yaml` is already configured to
-ignore these. `flake8` doesn't support `pyproject.toml` so be sure to add the
-following to the editor of choice as needed.
+New dependencys can be added to the `requirements-*.in` file. It is recommended
+to only use pins when specific versions or upgrades beyond a certain version are
+to be avoided. Otherwise, allow `pip-compile` to manage the pins in the
+generated `requirements-*.txt` files.
 
-```ini
---ignore=W503,E203
---max-line-length=88
+Once updated following the steps below, the package can be installed if needed.
+
+### With Makefile
+
+To update the generated files with a dependency:
+
+```console
+make update-dev
+```
+
+To attempt to upgrade all generated dependencies:
+
+```console
+make upgrade-dev
+```
+
+### Without Makefile
+
+To update the generated files with a dependency:
+
+```console
+pip-compile --no-emit-index-url requirements/requirements.in
+pip-compile --no-emit-index-url requirements/requirements-dev.in
+pip-compile --no-emit-index-url requirements/requirements-test.in
+```
+
+To attempt to upgrade all generated dependencies:
+
+```console
+pip-compile --upgrade --no-emit-index-url requirements/requirements.in
+pip-compile --upgrade --no-emit-index-url requirements/requirements-dev.in
+pip-compile --upgrade --no-emit-index-url requirements/requirements-test.in
 ```
 
 ---
@@ -146,21 +200,15 @@ with `git` hooks.
 
 ---
 
-## Makefile
+## Error: File "setup.py" not found.
 
-This repo has a Makefile with some quality of life scripts if the system
-supports `make`.  Please note there are no checks for an active `venv` in the
-Makefile.
+If you recieve this error while installing an editible version of this project you have two choices:
 
-| PHONY             | Description                                                                |
-| ----------------- | -------------------------------------------------------------------------- |
-| `init`            | Update pip to newest version                                               |
-| `install`         | install the project                                                        |
-| `install-dev`     | install development/test requirements and project as editable install      |
-| `upgrade-dev`     | update all dependencies, regenerate requirements.txt (disabled by default) |
-| `coverage`        | Runs `tox -p`. results to stdout, json, and html                           |
-| `build-dist`      | Build source distribution and wheel distribution                           |
-| `clean-artifacts` | Deletes python/mypy artifacts, cache, and pyc files                        |
-| `clean-tests`     | Deletes tox, coverage, and pytest artifacts                                |
-| `clean-build`     | Deletes build artifacts                                                    |
-| `clean`           | Deletes build, tox, coverage, pytest, mypy, cache, and pyc artifacts       |
+1. Update your `pip` to *at least* version 22.3.1
+2. Add the following empty `setup.py` to the project if upgrading pip is not an option
+
+```py
+from setuptools import setup
+
+setup()
+```

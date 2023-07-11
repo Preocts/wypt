@@ -8,6 +8,7 @@ from unittest.mock import patch
 import pytest
 from httpx import ReadTimeout
 from httpx import Response
+
 from wypt.exceptions import ResponseError
 from wypt.exceptions import ThrottleError
 from wypt.model import Meta

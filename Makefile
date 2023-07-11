@@ -1,25 +1,32 @@
-.PHONY: init
-init:
-	python -m pip install --upgrade pip setuptools
-
-.PHONY: install
-install:
-	python -m pip install --upgrade .
-
 .PHONY: install-dev
 install-dev:
-	python -m pip install --editable .[dev,test]
+	python -m pip install --upgrade --editable .[dev,test]
 	pre-commit install
 
-.PHONY: coverage
-coverage:
-	tox -p
+.PHONY: update-dev
+update-dev:
+	python -m pip install --upgrade pip-tools
+	pip-compile --resolver=backtracking --no-emit-index-url requirements/requirements.in
+	pip-compile --resolver=backtracking --no-emit-index-url requirements/requirements-dev.in
+	pip-compile --resolver=backtracking --no-emit-index-url requirements/requirements-test.in
 
 .PHONY: upgrade-dev
 upgrade-dev:
-	python -m pip install pip-tools
-	pip-compile --upgrade
-	python -m pip install --upgrade --editable .[dev,test]
+	python -m pip install --upgrade pip-tools
+	pip-compile --resolver=backtracking --upgrade --no-emit-index-url requirements/requirements.in
+	pip-compile --resolver=backtracking --upgrade --no-emit-index-url requirements/requirements-dev.in
+	pip-compile --resolver=backtracking --upgrade --no-emit-index-url requirements/requirements-test.in
+
+
+.PHONY: coverage
+coverage:
+	coverage run -m pytest tests/
+	coverage report -m
+
+.PHONY: docker-test
+docker-test:
+	docker build -t pydocker-test .
+	docker run -it --rm pydocker-test
 
 .PHONY: build-dist
 build-dist:
@@ -35,7 +42,7 @@ clean:
 	rm -rf .tox
 	rm -f coverage.xml
 	rm -f coverage.json
-	rm -rf coverage_html_report
+	rm -rf htmlcov
 	rm -rf .coverage
 	rm -rf .coverage.*
 	find . -name '.pytest_cache' -exec rm -rf {} +

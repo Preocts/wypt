@@ -4,13 +4,13 @@ import json
 from random import choice
 
 import pytest
-from wypt.database import Database
-from wypt.model import Meta
-from wypt.model import Paste
 
 from tests.conftest import METAS
 from tests.conftest import T_Data
 from tests.conftest import TABLE_DATA
+from wypt.database import Database
+from wypt.model import Meta
+from wypt.model import Paste
 
 # NOTE: Database fixtures in conftest.py file
 

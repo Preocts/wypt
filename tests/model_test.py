@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+
 from wypt.model import BaseModel
 from wypt.model import Match
 from wypt.model import Meta

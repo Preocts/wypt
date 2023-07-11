@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import re
-from typing import Generator
-from typing import Sequence
+from collections.abc import Generator
+from collections.abc import Sequence
 from unittest.mock import patch
 
 import pytest
+
 from wypt.model import BaseModel
 from wypt.model import Meta
 from wypt.model import Paste
