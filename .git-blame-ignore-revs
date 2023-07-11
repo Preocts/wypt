@@ -1,0 +1,8 @@
+# This file allows you to define specific revisions to ignore while looking a blames
+# Single file ignore:
+# $ git blame important.py --ignore-revs-file .git-blame-ignore-revs
+# Set revision ignore file in local/global git config
+# $ git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Formatting and linting update with new pre-commit-config
+8fb254fa82b83802f84943261758d205c0752a7e
