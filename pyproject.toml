@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "wypt"
-version = "0.0.1"
-requires-python = ">=3.8"
+version = "0.0.2"
+requires-python = ">=3.11"
 description = "Why you paste that - a pastebin scraper"
 readme = "README.md"
 license = { file = "LICENSE" }
@@ -31,9 +31,6 @@ test = {file = ["requirements/requirements-test.txt"]}
 
 [project.urls]
 homepage = "https://github.com/Preocts/wypt"
-# documentation = ""
-# repository = ""
-# changelog = ""
 
 # Package-data will be included in the build/install
 [tool.setuptools.package-data]
@@ -43,12 +40,6 @@ homepage = "https://github.com/Preocts/wypt"
 # CLI scripts if needed
 [project.scripts]
 wypt-scan = "wypt.cli:scan"
-
-[tool.setuptools.packages.find]
-where = ["src"]  # ["."] by default
-include = ["*"]  # ["*"] by default
-exclude = ["tests"]  # empty by default
-namespaces = true  # true by default
 
 [tool.mypy]
 check_untyped_defs = true
