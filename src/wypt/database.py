@@ -80,7 +80,6 @@ class Database:
         values_ph = ",".join(["?" for _ in model_dct.keys()])
 
         values = [list(row.to_dict().values()) for row in rows]
-        print(values)
 
         sql = f"INSERT OR IGNORE INTO {table} ({columns}) VALUES({values_ph})"
 
