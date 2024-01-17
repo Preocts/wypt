@@ -4,35 +4,31 @@ from __future__ import annotations
 from collections.abc import Generator
 from collections.abc import Sequence
 from contextlib import contextmanager
-from pathlib import Path
 from sqlite3 import Connection
 from sqlite3 import Cursor
 from typing import NoReturn
 from uuid import uuid4
 
-from .model import BaseModel
+from wypt import model
 
 
 class Database:
     def __init__(self, database_connection: Connection) -> None:
         """Read/Write actions to the sqlite3 database."""
         self._dbconn = database_connection
-        self._tables: dict[str, type[BaseModel]] = {}
+        self._tables: dict[str, type[model.BaseModel]] = {}
         self._nexts: dict[str, int] = {}
 
-    def add_table(self, table: str, sql_file: str, model: type[BaseModel]) -> None:
-        """
-        Create/Add a table from sql_file and model.
+    def init_tables(self) -> None:
+        """Create/Add defined tables to the database."""
+        self._tables["paste"] = model.Paste
+        self._tables["meta"] = model.Meta
+        self._tables["match"] = model.Match
 
-        Note: sql_file script is executed on add.
-
-        Args:
-            table: Name of the table
-            sql_file: SQLite3 script to create table. Should assert IF NOT EXISTS
-            model: BaseModel subclass to hold table data
-        """
-        self._tables[table] = model
-        self._create_table(sql_file)
+        with self.cursor(commit_on_exit=True) as cursor:
+            cursor.executescript(model.Paste.as_sql())
+            cursor.executescript(model.Meta.as_sql())
+            cursor.executescript(model.Match.as_sql())
 
     def row_count(self, table: str) -> int:
         """Current count of rows in table."""
@@ -48,13 +44,6 @@ class Database:
             query = cursor.execute(f"SELECT max(rowid) FROM {table}")
             return query.fetchone()[0] or 0
 
-    def _create_table(self, sql_file: str) -> None:
-        """Create table in database if it does not exist."""
-        sql = Path(Path(__file__).parent / sql_file).read_text()
-
-        with self.cursor(commit_on_exit=True) as cursor:
-            cursor.executescript(sql)
-
     @contextmanager
     def cursor(self, *, commit_on_exit: bool = False) -> Generator[Cursor, None, None]:
         """Context manager for cursor creation and cleanup."""
@@ -67,12 +56,12 @@ class Database:
                 self._dbconn.commit()
             cursor.close()
 
-    def insert(self, table: str, row_data: BaseModel) -> None:
+    def insert(self, table: str, row_data: model.BaseModel) -> None:
         """Insert paste into table, returns false on failure."""
         # If insert_many returns no failues, insert had success.
         self.insert_many(table, [row_data])
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
+    def insert_many(self, table: str, rows: Sequence[model.BaseModel]) -> None:
         """Insert many pastes into table, returns index of failures if any."""
         self._table_guard(table)
         model_dct = rows[0].to_dict()
@@ -80,7 +69,6 @@ class Database:
         values_ph = ",".join(["?" for _ in model_dct.keys()])
 
         values = [list(row.to_dict().values()) for row in rows]
-        print(values)
 
         sql = f"INSERT OR IGNORE INTO {table} ({columns}) VALUES({values_ph})"
 
@@ -93,7 +81,7 @@ class Database:
         next_: str | None = None,
         *,
         limit: int = 100,
-    ) -> tuple[list[BaseModel], str | None]:
+    ) -> tuple[list[model.BaseModel], str | None]:
         """
         Get rows starting at idx stored next counter or 0 if not provided.
 
@@ -101,7 +89,7 @@ class Database:
         values in database.
 
         Returns:
-            list[BaseModel],
+            list[model.BaseModel],
             string UUID or None if there are more results to pull
         """
         self._table_guard(table)
@@ -116,7 +104,7 @@ class Database:
 
             rows = cursor.fetchall()
 
-        results: list[BaseModel] = []
+        results: list[model.BaseModel] = []
         for row in rows:
             row_lst = list(row)
             last_row = row_lst.pop()

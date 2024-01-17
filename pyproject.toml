@@ -35,7 +35,6 @@ homepage = "https://github.com/Preocts/wypt"
 # Package-data will be included in the build/install
 [tool.setuptools.package-data]
 "wypt" = ["py.typed"]
-"wypt.tables" = ["*.sql"]
 
 # CLI scripts if needed
 [project.scripts]

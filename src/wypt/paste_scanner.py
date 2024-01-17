@@ -7,12 +7,7 @@ import logging
 import re
 from collections.abc import Generator
 from collections.abc import Sequence
-
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
-
+from typing import Protocol
 
 from .model import BaseModel
 from .model import Match

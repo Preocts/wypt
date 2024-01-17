@@ -35,9 +35,7 @@ def db() -> Database:
     dbconn = Connection(":memory:")
 
     database = Database(dbconn)
-    database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-    database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
-    database.add_table("match", "tables/match_database_tbl.sql", Match)
+    database.init_tables()
     return database
 
 
