@@ -10,9 +10,6 @@ from typing import Any
 import tomli
 
 from .database import Database
-from .model import Match
-from .model import Meta
-from .model import Paste
 from .pastebin_api import PastebinAPI
 from .pattern_config import PatternConfig
 
@@ -86,9 +83,7 @@ class Runtime:
         database_file = database_file if database_file else self._database_file
         dbconn = Connection(database_file, check_same_thread=check_same_thread)
         self._database = Database(dbconn)
-        self._database.add_table("paste", "tables/paste_database_tbl.sql", Paste)
-        self._database.add_table("meta", "tables/meta_database_tbl.sql", Meta)
-        self._database.add_table("match", "tables/match_database_tbl.sql", Match)
+        self._database.init_tables()
         return self._database
 
     def load_config(self, config_file: str = "wypt.toml") -> _Config:
