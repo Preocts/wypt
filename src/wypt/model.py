@@ -25,7 +25,7 @@ class BaseModel:
     @staticmethod
     def as_sql() -> str:
         """Render model as sql table creation string."""
-        return ""
+        raise NotImplementedError()
 
 
 @dataclasses.dataclass(frozen=True)
