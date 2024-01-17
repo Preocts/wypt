@@ -20,21 +20,15 @@ class Database:
         self._nexts: dict[str, int] = {}
 
     def init_tables(self) -> None:
-        """
-        Create/Add defined tables to the database.
-
-        Args:
-            table: Name of the table
-            model: model.BaseModel subclass to hold table data
-        """
+        """Create/Add defined tables to the database."""
         self._tables["paste"] = model.Paste
-        self._create_table(model.Paste.as_sql())
-
         self._tables["meta"] = model.Meta
-        self._create_table(model.Meta.as_sql())
-
         self._tables["match"] = model.Match
-        self._create_table(model.Match.as_sql())
+
+        with self.cursor(commit_on_exit=True) as cursor:
+            cursor.executescript(model.Paste.as_sql())
+            cursor.executescript(model.Meta.as_sql())
+            cursor.executescript(model.Match.as_sql())
 
     def row_count(self, table: str) -> int:
         """Current count of rows in table."""
@@ -49,11 +43,6 @@ class Database:
         with self.cursor() as cursor:
             query = cursor.execute(f"SELECT max(rowid) FROM {table}")
             return query.fetchone()[0] or 0
-
-    def _create_table(self, sql: str) -> None:
-        """Create table in database if it does not exist."""
-        with self.cursor(commit_on_exit=True) as cursor:
-            cursor.executescript(sql)
 
     @contextmanager
     def cursor(self, *, commit_on_exit: bool = False) -> Generator[Cursor, None, None]:
