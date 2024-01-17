@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -44,4 +45,35 @@ def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> N
 def test_model_str(model: BaseModel) -> None:
     result = str(model)
 
+    # TODO: LOL? Why are all the __str__ attributes required to be 79 characters?
     assert len(result) == 79
+
+
+def test_validate_meta_model_sql() -> None:
+    db = sqlite3.connect(":memory:")
+    cursor = db.cursor()
+
+    cursor.executescript(Meta.as_sql())
+
+    db.commit()
+    db.close()
+
+
+def test_validate_match_model_sql() -> None:
+    db = sqlite3.connect(":memory:")
+    cursor = db.cursor()
+
+    cursor.executescript(Match.as_sql())
+
+    db.commit()
+    db.close()
+
+
+def test_validate_paste_model_sql() -> None:
+    db = sqlite3.connect(":memory:")
+    cursor = db.cursor()
+
+    cursor.executescript(Paste.as_sql())
+
+    db.commit()
+    db.close()

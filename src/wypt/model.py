@@ -22,6 +22,11 @@ class BaseModel:
         """Convert model to JSON serialized string."""
         return json.dumps(self.to_dict(), sort_keys=True)
 
+    @staticmethod
+    def as_sql() -> str:
+        """Render model as sql table creation string."""
+        return ""
+
 
 @dataclasses.dataclass(frozen=True)
 class Meta(BaseModel):
@@ -46,6 +51,30 @@ class Meta(BaseModel):
         dt = str(datetime.fromtimestamp(float(self.date)))
         return f"{self.full_url:21} | {dt:19} | {self.title[:18]:18} | {self.syntax:12}"
 
+    @staticmethod
+    def as_sql() -> str:
+        """Render model as sql table creation string."""
+        return """\
+-- Order of table columns much match the `Meta` dataclass model.
+CREATE TABLE IF NOT EXISTS meta (
+    key text NOT NULL,
+    scrape_url text NOT NULL,
+    full_url text NOT NULL,
+    date text NOT NULL,
+    size text NOT NULL,
+    expire text NOT NULL,
+    title text NOT NULL,
+    syntax text NOT NULL,
+    user text NOT NULL,
+    hits text NOT NULL
+);
+
+-- Create a unique index on the paste_key
+CREATE UNIQUE INDEX IF NOT EXISTS meta_key ON meta(key);
+-- Create an index on the syntax flag for searching
+CREATE INDEX IF NOT EXISTS syntax_flag ON meta(syntax);
+"""
+
 
 @dataclasses.dataclass(frozen=True)
 class Paste(BaseModel):
@@ -62,6 +91,20 @@ class Paste(BaseModel):
         url = "https://pastebin.com/"
         return f"{url + self.key:21} | {self.content[:51]:51}"
 
+    @staticmethod
+    def as_sql() -> str:
+        """Render model as sql table creation string."""
+        return """\
+-- Order of table columns much match the `Paste` dataclass model.
+CREATE TABLE IF NOT EXISTS paste (
+    key text NOT NULL,
+    content text NOT NULL
+);
+
+-- Create a unique index on the paste key
+CREATE UNIQUE INDEX IF NOT EXISTS paste_key ON paste(key);
+"""
+
 
 @dataclasses.dataclass(frozen=True)
 class Match(BaseModel):
@@ -77,3 +120,18 @@ class Match(BaseModel):
 
     def __str__(self) -> str:
         return f"{self.key:8} | {self.match_name[:15]:15} | {self.match_value[:50]:50}"
+
+    @staticmethod
+    def as_sql() -> str:
+        """Render model as sql table creation string."""
+        return """\
+-- Order of table columns much match the `Match` dataclass model.
+CREATE TABLE IF NOT EXISTS match (
+    key text NOT NULL,
+    match_name text NOT NULL,
+    match_value text NOT NULL
+);
+
+-- Create a unique index on the paste key
+CREATE UNIQUE INDEX IF NOT EXISTS match_key ON match(key, match_name, match_value);
+"""
