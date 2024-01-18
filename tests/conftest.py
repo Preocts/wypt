@@ -3,13 +3,10 @@ from __future__ import annotations
 import json
 from pathlib import Path
 from sqlite3 import Connection
-from typing import List  # noqa: PEA001
-from typing import Tuple  # noqa: PEA001
 
 import pytest
 
 from wypt.database import Database
-from wypt.model import BaseModel
 from wypt.model import Match
 from wypt.model import Meta
 from wypt.model import Paste
@@ -22,12 +19,7 @@ META_ROWS = [Meta(**d) for d in json.loads(METAS)]
 PASTE_ROWS = [Paste(**d) for d in json.loads(PASTES)]
 MATCH_ROWS = [Match(**d) for d in json.loads(MATCHES)]
 
-TABLE_DATA = [
-    ("meta", META_ROWS),
-    ("paste", PASTE_ROWS),
-    ("match", MATCH_ROWS),
-]
-T_Data = Tuple[str, List[BaseModel]]
+TABLES = ["meta", "paste", "match"]
 
 
 @pytest.fixture
