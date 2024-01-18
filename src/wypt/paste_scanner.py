@@ -19,6 +19,9 @@ class _Database(Protocol):
     def insert(self, table: str, row_data: BaseModel) -> None:
         ...
 
+    def insert_metas(self, metas: Sequence[Meta]) -> None:
+        ...
+
     def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
         ...
 
@@ -115,7 +118,7 @@ class PasteScanner:
         results = self._pastebin_api.scrape()
 
         if results:
-            self._database.insert_many("meta", results)
+            self._database.insert_metas(results)
             self.logger.info("Discovered %d meta rows, stored new.", len(results))
             self._hydrate_to_pull()
 

@@ -21,8 +21,8 @@ def test_init_creates_table(db: Database, table: str) -> None:
 
 def test_insert_many_meta_rows_ignores_constraint_errors(db: Database) -> None:
     # Insert twice to confirm constraint violations are ignored
-    db.insert_many("meta", META_ROWS)
-    db.insert_many("meta", META_ROWS)
+    db.insert_metas(META_ROWS)
+    db.insert_metas(META_ROWS)
 
     assert db.row_count("meta") == len(META_ROWS)
 
@@ -47,7 +47,7 @@ def test_metadb_get_keys_to_fetch(db: Database) -> None:
     # Setup two databases with mock data. Results should expect
     # all keys of meta fixture to be returns sans 0th index key.
     paste = Paste(META_ROWS[0].key, "")
-    db.insert_many("meta", META_ROWS)
+    db.insert_metas(META_ROWS)
     db.insert("paste", paste)
 
     results = db.get_difference("meta", "paste", limit=100)

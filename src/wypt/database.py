@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Generator
 from collections.abc import Sequence
+from contextlib import closing
 from contextlib import contextmanager
 from sqlite3 import Connection
 from sqlite3 import Cursor
@@ -55,6 +56,38 @@ class Database:
             if commit_on_exit:
                 self._dbconn.commit()
             cursor.close()
+
+    def insert_metas(self, metas: Sequence[model.Meta]) -> None:
+        """Insert Meta rows in batch. Primary key conflicts are ignored."""
+        sql = """\
+                INSERT OR IGNORE INTO meta (
+                    key,
+                    scrape_url,
+                    full_url,
+                    date,
+                    size,
+                    expire,
+                    title,
+                    syntax,
+                    user,
+                    hits
+                ) VALUES (
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?,
+                    ?
+                )
+"""
+        values = [list(meta.to_dict().values()) for meta in metas]
+
+        with closing(self._dbconn.cursor()) as cursor:
+            cursor.executemany(sql, values)
 
     def insert(self, table: str, row_data: model.BaseModel) -> None:
         """Insert paste into table, returns false on failure."""
