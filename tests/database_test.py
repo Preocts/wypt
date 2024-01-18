@@ -1,66 +1,59 @@
 from __future__ import annotations
 
-import json
-from random import choice
-
 import pytest
 
-from tests.conftest import METAS
-from tests.conftest import T_Data
-from tests.conftest import TABLE_DATA
+from tests.conftest import MATCH_ROWS
+from tests.conftest import META_ROWS
+from tests.conftest import PASTE_ROWS
+from tests.conftest import TABLES
 from wypt.database import Database
-from wypt.model import Meta
 from wypt.model import Paste
 
-# NOTE: Database fixtures in conftest.py file
 
-
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_init_creates_table(db: Database, table_data: T_Data) -> None:
-    # Use our own query to confirm table exists.
+@pytest.mark.parametrize("table", TABLES)
+def test_init_creates_table(db: Database, table: str) -> None:
     with db.cursor() as cursor:
-        query = cursor.execute(f"SELECT count(*) from {table_data[0]}")
+        query = cursor.execute(f"SELECT count(*) from {table}")
         result = query.fetchone()
 
     assert result[0] == 0
 
 
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_insert_row(db: Database, table_data: T_Data) -> None:
-    table = table_data[0]
-    row = choice(table_data[1])
+def test_insert_many_meta_rows_ignores_constraint_errors(db: Database) -> None:
+    # Insert twice to confirm constraint violations are ignored
+    db.insert_metas(META_ROWS)
+    db.insert_metas(META_ROWS)
 
-    db.insert(table, row)
-    db.insert(table, row)
-    row_count = db.row_count(table)
-
-    assert row_count == 1
+    assert db.row_count("meta") == len(META_ROWS)
 
 
-@pytest.mark.parametrize("table_data", TABLE_DATA)
-def test_insert_many_with_failure(db: Database, table_data: T_Data) -> None:
-    table, models = table_data
-    expected_len = len(models)
-    # Create new list here to prevent pollution
-    models = models + [models[0]]
+def test_insert_many_match_rows_ignores_constraint_errors(db: Database) -> None:
+    # Insert twice to confirm constraint violations are ignored
+    db.insert_many("match", MATCH_ROWS)
+    db.insert_many("match", MATCH_ROWS)
 
-    db.insert_many(table, models)
+    assert db.row_count("match") == len(MATCH_ROWS)
 
-    assert db.row_count(table) == expected_len
+
+def test_insert_one_paste_row_ignores_constraint_errors(db: Database) -> None:
+    # Insert twice to confirm constraint violations are ignored
+    db.insert("paste", PASTE_ROWS[0])
+    db.insert("paste", PASTE_ROWS[0])
+
+    assert db.row_count("paste") == 1
 
 
 def test_metadb_get_keys_to_fetch(db: Database) -> None:
     # Setup two databases with mock data. Results should expect
     # all keys of meta fixture to be returns sans 0th index key.
-    metas = [Meta(**meta) for meta in json.loads(METAS)]
-    paste = Paste(metas[0].key, "")
-    db.insert_many("meta", metas)
+    paste = Paste(META_ROWS[0].key, "")
+    db.insert_metas(META_ROWS)
     db.insert("paste", paste)
 
     results = db.get_difference("meta", "paste", limit=100)
 
-    assert metas[0].key not in results
-    assert len(results) == len(metas) - 1
+    assert META_ROWS[0].key not in results
+    assert len(results) == len(META_ROWS) - 1
 
 
 def test_table_guard_raises(db: Database) -> None:
@@ -68,10 +61,10 @@ def test_table_guard_raises(db: Database) -> None:
         db._table_guard("nothere")
 
 
-def test_max_id(db: Database) -> None:
-    result = db.max_id("paste")
+def test_max_id(mock_database: Database) -> None:
+    result = mock_database.max_id("paste")
 
-    assert result == 0
+    assert result == len(PASTE_ROWS)
 
 
 def test_get_return_uuid_and_paginates(db: Database) -> None:

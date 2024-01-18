@@ -52,6 +52,9 @@ class MockDatabase:
     def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
         raise NotImplementedError()
 
+    def insert_metas(self, metas: Sequence[Meta]) -> None:
+        raise NotImplementedError()
+
     def get_difference(
         self, left_table: str, right_table: str, limit: int = 25
     ) -> list[str]:
@@ -72,7 +75,7 @@ def test_run(ps: PasteScanner) -> None:
 
 def test_run_scape(ps: PasteScanner) -> None:
     with patch.object(ps._pastebin_api, "scrape", side_effect=[[], [1]]) as mock_pull:
-        with patch.object(ps._database, "insert_many") as mock_db:
+        with patch.object(ps._database, "insert_metas") as mock_db:
             # First call does not trigger insert to database
             ps._run_scrape()
             # Second call does trigger insert to database
