@@ -3,25 +3,14 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from typing import Protocol
 
-from .model import BaseModel
-
-
-class Database_(Protocol):
-    def get(
-        self, table: str, next_: str | None, *, limit: int = 100
-    ) -> tuple[list[BaseModel], str | None]:
-        ...
-
-    def delete_many(self, table: str, keys: list[str]) -> None:
-        ...
+from .database import Database as _Database
 
 
 class APIHandler:
     logger = logging.getLogger()
 
-    def __init__(self, database: Database_) -> None:
+    def __init__(self, database: _Database) -> None:
         """Initialize API handler."""
         self._database = database
 

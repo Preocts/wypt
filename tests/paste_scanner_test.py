@@ -1,69 +1,20 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Generator
-from collections.abc import Sequence
 from unittest.mock import patch
 
 import pytest
 
-from wypt.model import Match
-from wypt.model import Meta
+from wypt.database import Database
 from wypt.model import Paste
 from wypt.paste_scanner import PasteScanner
-
-
-class MockPastebinAPI:
-    @property
-    def can_scrape(self) -> bool:
-        raise NotImplementedError()
-
-    @property
-    def can_scrape_item(self) -> bool:
-        raise NotImplementedError()
-
-    def scrape(
-        self,
-        limit: int | None = None,
-        lang: str | None = None,
-        *,
-        raise_on_throttle: bool = True,
-    ) -> list[Meta]:
-        raise NotImplementedError()
-
-    def scrape_item(
-        self,
-        key: str,
-        *,
-        raise_on_throttle: bool = True,
-    ) -> Paste | None:
-        raise NotImplementedError()
-
-
-class MockPatternConfig:
-    def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
-        raise NotImplementedError()
-
-
-class MockDatabase:
-    def insert_paste(self, paste: Paste) -> None:
-        raise NotImplementedError()
-
-    def insert_metas(self, metas: Sequence[Meta]) -> None:
-        raise NotImplementedError()
-
-    def insert_matches(self, matches: Sequence[Match]) -> None:
-        raise NotImplementedError()
-
-    def get_difference(
-        self, left_table: str, right_table: str, limit: int = 25
-    ) -> list[str]:
-        return []
+from wypt.pastebin_api import PastebinAPI
+from wypt.pattern_config import PatternConfig
 
 
 @pytest.fixture
-def ps() -> PasteScanner:
-    return PasteScanner(MockDatabase(), MockPatternConfig(), MockPastebinAPI())
+def ps(db: Database) -> PasteScanner:
+    return PasteScanner(db, PatternConfig({}), PastebinAPI())
 
 
 def test_run(ps: PasteScanner) -> None:
