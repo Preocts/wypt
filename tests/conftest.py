@@ -36,5 +36,5 @@ def mock_database(db: Database) -> Database:
     db.insert_metas(META_ROWS)
     for paste in PASTE_ROWS:
         db.insert_paste(paste)
-    db.insert_many("match", MATCH_ROWS)
+    db.insert_matches(MATCH_ROWS)
     return db
