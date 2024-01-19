@@ -9,7 +9,6 @@ from collections.abc import Generator
 from collections.abc import Sequence
 from typing import Protocol
 
-from .model import BaseModel
 from .model import Match
 from .model import Meta
 from .model import Paste
@@ -22,7 +21,7 @@ class _Database(Protocol):
     def insert_metas(self, metas: Sequence[Meta]) -> None:
         ...
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
+    def insert_matches(self, matches: Sequence[Match]) -> None:
         ...
 
     def get_difference(
@@ -153,7 +152,7 @@ class PasteScanner:
                 matches.extend([Match(key, label, val) for val in match])
 
         if matches:
-            self._database.insert_many("match", matches)
+            self._database.insert_matches(matches)
 
         return len(matches)
 

@@ -29,8 +29,8 @@ def test_insert_many_meta_rows_ignores_constraint_errors(db: Database) -> None:
 
 def test_insert_many_match_rows_ignores_constraint_errors(db: Database) -> None:
     # Insert twice to confirm constraint violations are ignored
-    db.insert_many("match", MATCH_ROWS)
-    db.insert_many("match", MATCH_ROWS)
+    db.insert_matches(MATCH_ROWS)
+    db.insert_matches(MATCH_ROWS)
 
     assert db.row_count("match") == len(MATCH_ROWS)
 

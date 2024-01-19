@@ -105,18 +105,22 @@ class Database:
         with closing(self._dbconn.cursor()) as cursor:
             cursor.execute(sql, values)
 
-    def insert_many(self, table: str, rows: Sequence[model.BaseModel]) -> None:
-        """Insert many pastes into table, returns index of failures if any."""
-        self._table_guard(table)
-        model_dct = rows[0].to_dict()
-        columns = ",".join(list(model_dct.keys()))
-        values_ph = ",".join(["?" for _ in model_dct.keys()])
+    def insert_matches(self, matches: Sequence[model.Match]) -> None:
+        """Insert Match rows in batch. Primary key conflicts are ignored."""
+        sql = """\
+                INSERT OR IGNORE INTO match (
+                    key,
+                    match_name,
+                    match_value
+                ) VALUES (
+                    ?,
+                    ?,
+                    ?
+                )
+"""
+        values = [list(match.to_dict().values()) for match in matches]
 
-        values = [list(row.to_dict().values()) for row in rows]
-
-        sql = f"INSERT OR IGNORE INTO {table} ({columns}) VALUES({values_ph})"
-
-        with self.cursor(commit_on_exit=True) as cursor:
+        with closing(self._dbconn.cursor()) as cursor:
             cursor.executemany(sql, values)
 
     def get(

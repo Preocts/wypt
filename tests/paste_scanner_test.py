@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from wypt.model import BaseModel
+from wypt.model import Match
 from wypt.model import Meta
 from wypt.model import Paste
 from wypt.paste_scanner import PasteScanner
@@ -49,10 +49,10 @@ class MockDatabase:
     def insert_paste(self, paste: Paste) -> None:
         raise NotImplementedError()
 
-    def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
+    def insert_metas(self, metas: Sequence[Meta]) -> None:
         raise NotImplementedError()
 
-    def insert_metas(self, metas: Sequence[Meta]) -> None:
+    def insert_matches(self, matches: Sequence[Match]) -> None:
         raise NotImplementedError()
 
     def get_difference(
@@ -92,11 +92,11 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert_paste") as mock_paste_db:
-                with patch.object(ps._database, "insert_many") as mock_meta_db:
+                with patch.object(ps._database, "insert_matches") as mock_match_db:
                     ps._run_scrape_item()
 
     assert mock_paste_db.call_count == 1
-    assert mock_meta_db.call_count == 1
+    assert mock_match_db.call_count == 1
 
 
 def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
@@ -106,7 +106,7 @@ def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
     with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
             with patch.object(ps._database, "insert_paste") as mock_paste_db:
-                with patch.object(ps._database, "insert_many") as mock_match_db:
+                with patch.object(ps._database, "insert_matches") as mock_match_db:
                     ps._run_scrape_item()
 
     assert mock_paste_db.call_count == 1
