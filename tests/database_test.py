@@ -37,8 +37,8 @@ def test_insert_many_match_rows_ignores_constraint_errors(db: Database) -> None:
 
 def test_insert_one_paste_row_ignores_constraint_errors(db: Database) -> None:
     # Insert twice to confirm constraint violations are ignored
-    db.insert("paste", PASTE_ROWS[0])
-    db.insert("paste", PASTE_ROWS[0])
+    db.insert_paste(PASTE_ROWS[0])
+    db.insert_paste(PASTE_ROWS[0])
 
     assert db.row_count("paste") == 1
 
@@ -48,7 +48,7 @@ def test_metadb_get_keys_to_fetch(db: Database) -> None:
     # all keys of meta fixture to be returns sans 0th index key.
     paste = Paste(META_ROWS[0].key, "")
     db.insert_metas(META_ROWS)
-    db.insert("paste", paste)
+    db.insert_paste(paste)
 
     results = db.get_difference("meta", "paste", limit=100)
 
@@ -67,18 +67,21 @@ def test_max_id(mock_database: Database) -> None:
     assert result == len(PASTE_ROWS)
 
 
-def test_get_return_uuid_and_paginates(db: Database) -> None:
-    rows_insert = [Paste("abc", "test1"), Paste("zyx", "test2")]
-    db.insert_many("paste", rows_insert)
+def test_get_returns_uuid_and_paginate_token_functions(db: Database) -> None:
+    # We are testing that we can limit a table of 2 rows to a single
+    # row return value. We also take the uuid for that pagination and
+    # assert we get row 2 of 2 with it.
+    for paste in PASTE_ROWS:
+        db.insert_paste(paste)
 
-    row01, uuid1 = db.get("paste", limit=1)
-    row02, uuid2 = db.get("paste", uuid1)
+    row01, uuid01 = db.get("paste", limit=1)
+    row02, uuid02 = db.get("paste", uuid01)
 
     assert len(row01) == 1
     assert len(row02) == 1
-    assert row01[0] == rows_insert[0]
-    assert row02[0] == rows_insert[1]
-    assert uuid2 is None
+    assert row01[0] == PASTE_ROWS[0]
+    assert row02[0] == PASTE_ROWS[1]
+    assert uuid02 is None
 
 
 def test_delete_many(mock_database: Database) -> None:

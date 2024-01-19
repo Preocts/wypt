@@ -34,6 +34,7 @@ def db() -> Database:
 @pytest.fixture
 def mock_database(db: Database) -> Database:
     db.insert_metas(META_ROWS)
-    db.insert_many("paste", PASTE_ROWS)
+    for paste in PASTE_ROWS:
+        db.insert_paste(paste)
     db.insert_many("match", MATCH_ROWS)
     return db

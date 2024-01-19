@@ -46,7 +46,7 @@ class MockPatternConfig:
 
 
 class MockDatabase:
-    def insert(self, table: str, row_data: BaseModel) -> None:
+    def insert_paste(self, paste: Paste) -> None:
         raise NotImplementedError()
 
     def insert_many(self, table: str, rows: Sequence[BaseModel]) -> None:
@@ -91,7 +91,7 @@ def test_run_scrape_item_with_match(ps: PasteScanner) -> None:
     ptn = re.compile(".+")  # Match everything
     with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
-            with patch.object(ps._database, "insert") as mock_paste_db:
+            with patch.object(ps._database, "insert_paste") as mock_paste_db:
                 with patch.object(ps._database, "insert_many") as mock_meta_db:
                     ps._run_scrape_item()
 
@@ -105,7 +105,7 @@ def test_run_scrape_item_without_match(ps: PasteScanner) -> None:
     ptn = re.compile("^$")  # Match nothing
     with patch.object(ps._pastebin_api, "scrape_item", return_value=paste):
         with patch.object(ps._patterns, "pattern_iter", return_value=[("mock", ptn)]):
-            with patch.object(ps._database, "insert") as mock_paste_db:
+            with patch.object(ps._database, "insert_paste") as mock_paste_db:
                 with patch.object(ps._database, "insert_many") as mock_match_db:
                     ps._run_scrape_item()
 
