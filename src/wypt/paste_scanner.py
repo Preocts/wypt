@@ -4,62 +4,12 @@ Gather and scan paste data from pastebin.
 from __future__ import annotations
 
 import logging
-import re
-from collections.abc import Generator
-from collections.abc import Sequence
-from typing import Protocol
 
+from .database import Database as _Database
 from .model import Match
-from .model import Meta
 from .model import Paste
-
-
-class _Database(Protocol):
-    def insert_paste(self, paste: Paste) -> None:
-        ...
-
-    def insert_metas(self, metas: Sequence[Meta]) -> None:
-        ...
-
-    def insert_matches(self, matches: Sequence[Match]) -> None:
-        ...
-
-    def get_difference(
-        self, left_table: str, right_table: str, limit: int = 25
-    ) -> list[str]:
-        ...
-
-
-class _PatternConfig(Protocol):
-    def pattern_iter(self) -> Generator[tuple[str, re.Pattern[str]], None, None]:
-        ...
-
-
-class _PastebinAPI(Protocol):
-    @property
-    def can_scrape(self) -> bool:
-        ...
-
-    @property
-    def can_scrape_item(self) -> bool:
-        ...
-
-    def scrape(
-        self,
-        limit: int | None = None,
-        lang: str | None = None,
-        *,
-        raise_on_throttle: bool = True,
-    ) -> list[Meta]:
-        ...
-
-    def scrape_item(
-        self,
-        key: str,
-        *,
-        raise_on_throttle: bool = True,
-    ) -> Paste | None:
-        ...
+from .pastebin_api import PastebinAPI as _PastebinAPI
+from .pattern_config import PatternConfig as _PatternConfig
 
 
 class PasteScanner:
