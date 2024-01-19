@@ -89,10 +89,21 @@ class Database:
         with closing(self._dbconn.cursor()) as cursor:
             cursor.executemany(sql, values)
 
-    def insert(self, table: str, row_data: model.BaseModel) -> None:
-        """Insert paste into table, returns false on failure."""
-        # If insert_many returns no failues, insert had success.
-        self.insert_many(table, [row_data])
+    def insert_paste(self, paste: model.Paste) -> None:
+        """Insert row into paste table. Constraint violations are ignored."""
+        sql = """\
+                INSERT OR IGNORE INTO paste (
+                    key,
+                    content
+                ) VALUES (
+                    ?,
+                    ?
+                )
+"""
+        values = [paste.key, paste.content]
+
+        with closing(self._dbconn.cursor()) as cursor:
+            cursor.execute(sql, values)
 
     def insert_many(self, table: str, rows: Sequence[model.BaseModel]) -> None:
         """Insert many pastes into table, returns index of failures if any."""

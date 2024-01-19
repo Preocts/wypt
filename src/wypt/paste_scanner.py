@@ -16,7 +16,7 @@ from .model import Paste
 
 
 class _Database(Protocol):
-    def insert(self, table: str, row_data: BaseModel) -> None:
+    def insert_paste(self, paste: Paste) -> None:
         ...
 
     def insert_metas(self, metas: Sequence[Meta]) -> None:
@@ -141,7 +141,7 @@ class PasteScanner:
 
         # Remove content from model if class flag is False
         result = result if self._save_paste_content else Paste(key, "")
-        self._database.insert("paste", result)
+        self._database.insert_paste(result)
 
     def _save_pattern_matches(self, key: str, content: str) -> int:
         """Save matches from content to database, return count of matches."""
