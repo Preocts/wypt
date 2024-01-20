@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}Some cool title{% endblock%}</title>
+    <link rel="stylesheet" href="static/css/base.css" />
+    <link rel="stylesheet" href="static/css/grid.css" />
+    {% block extra_css %}{% endblock %}
+  </head>
+  <script src="static/js/htmx.min.js"></script>
+  <body>
+    <div class="grid-base">
+      <div class="span2 solid-border">title bar</div>
+      <div class="solid-border">
+        <a href="/">Main Index page</a><br />
+        <a href="/gridsample">Grid Sample Page</a><br />
+      </div>
+      <div>
+        <div id="content" class="solid-border">{% block content %}{% endblock %}</div>
+      </div>
+      <div class="span2 solid-border">footer bar</div>
+    </div>
+  </body>
+</html>
