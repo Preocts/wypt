@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Generator
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 import pytest
@@ -16,15 +17,19 @@ def api(mock_database: Database) -> Generator[None, None, None]:
         yield None
 
 
-def test_get_table() -> None:
-    with patch.object(api_module.APIHandler, "get_table_dct") as mock:
-        api_module.get_table("table name", "123", 50)
+def test_route_favicon() -> None:
+    result = api_module.favicon()
 
-    mock.assert_called_once_with("table name", "123", 50)
+    assert result.media_type == "image/vnd.microsoft.icon"
 
 
-def test_delete_table_row() -> None:
-    with patch.object(api_module.APIHandler, "delete_table_rows") as mock:
-        api_module.delete_table_row("table name", "123,234")
+def test_route_index() -> None:
+    result = api_module.index(MagicMock())
 
-    mock.assert_called_once_with("table name", "123,234")
+    assert result.media_type == "text/html"
+
+
+def test_route_gridsample() -> None:
+    result = api_module.gridsample(MagicMock())
+
+    assert result.media_type == "text/html"
