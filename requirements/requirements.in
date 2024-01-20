@@ -7,4 +7,5 @@
 httpx
 tomli
 fastapi
+jinja2
 uvicorn

@@ -1,9 +1,12 @@
 from __future__ import annotations
 
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse
+from fastapi import Request
+from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
-from .api_handler import APIHandler
 from .runtime import Runtime
 
 # Setup runtime
@@ -11,20 +14,24 @@ runtime = Runtime()
 runtime.load_config()
 runtime.set_database(runtime.get_config().database_file)
 
-routes = FastAPI(title="wypt API", version="1")
+# Setup API and templates
+routes = FastAPI(title="wypt api", version="1")
+routes.mount("/static", StaticFiles(directory="static"), name="static")
+template = Jinja2Templates(directory="template")
 
 
-@routes.get("/database/{table}", response_class=JSONResponse)
-def get_table(
-    table: str,
-    next: str = "",  # noqa: A002
-    limit: int = 100,
-) -> dict[str, str]:
-    handler = APIHandler(runtime.get_database())
-    return handler.get_table_dct(table, next, limit)
+@routes.get("/favicon.ico", include_in_schema=False)
+def favicon() -> FileResponse:
+    return FileResponse("static/img/favicon.ico")
 
 
-@routes.delete("/database/{table}", response_class=JSONResponse)
-def delete_table_row(table: str, keys: str) -> dict[str, str]:
-    handler = APIHandler(runtime.get_database())
-    return handler.delete_table_rows(table, keys)
+@routes.get("/")
+def index(request: Request) -> HTMLResponse:
+    """Index page."""
+    return template.TemplateResponse(request, "index.html")
+
+
+@routes.get("/gridsample")
+def gridsample(request: Request) -> HTMLResponse:
+    """Sample grid layout page."""
+    return template.TemplateResponse(request, "gridsample.html")
