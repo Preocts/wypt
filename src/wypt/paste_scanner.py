@@ -109,3 +109,4 @@ class PasteScanner:
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
         self._to_pull = self._database.get_difference("meta", "paste", limit=100)
+        self.logger.info("Hydration created %d keys to pull.", len(self._to_pull))
