@@ -31,6 +31,12 @@ class Database:
             cursor.executescript(model.Meta.as_sql())
             cursor.executescript(model.Match.as_sql())
 
+    def match_count(self) -> int:
+        """Current count of rows on the match table."""
+        with closing(self._dbconn.cursor()) as cursor:
+            query = cursor.execute("SELECT count(key) FROM match;")
+            return query.fetchone()[0]
+
     def row_count(self, table: str) -> int:
         """Current count of rows in table."""
         self._table_guard(table)

@@ -120,3 +120,9 @@ def test_get_match_views_returns_empty_over_offset(mock_database: Database) -> N
     rows = mock_database.get_match_views(offset=100)
 
     assert not rows
+
+
+def test_get_total_matches(mock_database: Database) -> None:
+    count = mock_database.match_count()
+
+    assert count == len(MATCH_ROWS)
