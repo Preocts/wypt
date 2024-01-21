@@ -135,3 +135,16 @@ CREATE TABLE IF NOT EXISTS match (
 -- Create a unique index on the paste key
 CREATE UNIQUE INDEX IF NOT EXISTS match_key ON match(key, match_name, match_value);
 """
+
+
+@dataclasses.dataclass(frozen=True)
+class MatchView:
+    """A view of a match used by the web front-end to render results."""
+
+    key: str
+    date: str
+    expire: str
+    title: str
+    full_url: str
+    match_name: str
+    match_value: str

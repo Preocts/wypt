@@ -101,3 +101,28 @@ def test_delete_one(mock_database: Database) -> None:
     mock_database.delete("paste", rows[0].key)
 
     assert len(rows) - mock_database.row_count("paste") == 1
+
+
+def test_get_match_views(mock_database: Database) -> None:
+    rows = mock_database.get_match_views()
+
+    assert len(rows) == len(MATCH_ROWS)
+
+
+def test_get_match_views_returns_offset(mock_database: Database) -> None:
+    rows = mock_database.get_match_views(1, 1)
+
+    assert len(rows) == 1
+    assert rows[0].key == MATCH_ROWS[1].key
+
+
+def test_get_match_views_returns_empty_over_offset(mock_database: Database) -> None:
+    rows = mock_database.get_match_views(offset=100)
+
+    assert not rows
+
+
+def test_get_total_matches(mock_database: Database) -> None:
+    count = mock_database.match_count()
+
+    assert count == len(MATCH_ROWS)

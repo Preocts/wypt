@@ -31,6 +31,12 @@ class Database:
             cursor.executescript(model.Meta.as_sql())
             cursor.executescript(model.Match.as_sql())
 
+    def match_count(self) -> int:
+        """Current count of rows on the match table."""
+        with closing(self._dbconn.cursor()) as cursor:
+            query = cursor.execute("SELECT count(key) FROM match;")
+            return query.fetchone()[0]
+
     def row_count(self, table: str) -> int:
         """Current count of rows in table."""
         self._table_guard(table)
@@ -122,6 +128,53 @@ class Database:
 
         with closing(self._dbconn.cursor()) as cursor:
             cursor.executemany(sql, values)
+
+    def get_match_views(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> list[model.MatchView]:
+        """
+        Get a list of match views from the database.
+
+        Args:
+            limit: Limit the number of rows to return.
+            offset: Determine the offset start of the rows returned
+
+        Returns:
+            A list of model.MatchView object. List can be empty.
+        """
+        sql = """\
+            SELECT
+                match.key,
+                meta.date,
+                meta.expire,
+                meta.title,
+                meta.full_url,
+                match.match_name,
+                match.match_value
+            FROM
+                match
+                INNER JOIN meta ON meta.key = match.key
+            ORDER BY meta.date
+            LIMIT ? OFFSET ?;
+        """
+        with closing(self._dbconn.cursor()) as cursor:
+            cursor.execute(sql, (limit, offset))
+            rows = cursor.fetchall()
+
+        return [
+            model.MatchView(
+                key=row[0],
+                date=row[1],
+                expire=row[2],
+                title=row[3],
+                full_url=row[4],
+                match_name=row[5],
+                match_value=row[6],
+            )
+            for row in rows
+        ]
 
     def get(
         self,
