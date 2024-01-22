@@ -89,11 +89,12 @@ class Database:
                     ?,
                     ?
                 )
-"""
+        """
         values = [list(meta.to_dict().values()) for meta in metas]
 
         with closing(self._dbconn.cursor()) as cursor:
             cursor.executemany(sql, values)
+            self._dbconn.commit()
 
     def insert_paste(self, paste: model.Paste) -> None:
         """Insert row into paste table. Constraint violations are ignored."""
@@ -105,11 +106,12 @@ class Database:
                     ?,
                     ?
                 )
-"""
+        """
         values = [paste.key, paste.content]
 
         with closing(self._dbconn.cursor()) as cursor:
             cursor.execute(sql, values)
+            self._dbconn.commit()
 
     def insert_matches(self, matches: Sequence[model.Match]) -> None:
         """Insert Match rows in batch. Primary key conflicts are ignored."""
@@ -123,11 +125,12 @@ class Database:
                     ?,
                     ?
                 )
-"""
+        """
         values = [list(match.to_dict().values()) for match in matches]
 
         with closing(self._dbconn.cursor()) as cursor:
             cursor.executemany(sql, values)
+            self._dbconn.commit()
 
     def get_match_views(
         self,
