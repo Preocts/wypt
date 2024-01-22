@@ -151,7 +151,6 @@ class Database:
             SELECT
                 match.key,
                 meta.date,
-                meta.expire,
                 meta.title,
                 meta.full_url,
                 match.match_name,
@@ -170,11 +169,10 @@ class Database:
             model.MatchView(
                 key=row[0],
                 date=row[1],
-                expire=row[2],
-                title=row[3],
-                full_url=row[4],
-                match_name=row[5],
-                match_value=row[6],
+                title=row[2],
+                full_url=row[3],
+                match_name=row[4],
+                match_value=row[5],
             )
             for row in rows
         ]

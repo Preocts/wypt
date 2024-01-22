@@ -1,0 +1,26 @@
+{% extends "_shared_base.html" %}
+{% block title %}WYPT Match Table{% endblock %}
+{% block content %}
+<div class="span12">
+  <h1>Match Table</h1>
+</div>
+<div class="span12">
+  <table>
+    <tr>
+      <th>date</th>
+      <th>title</th>
+      <th>match_name</th>
+      <th>match_value</th>
+    </tr>
+    {% for matchview in matchviews %}
+    <tr>
+      <td>{{ matchview.date }}</td>
+      <td><a href="{{ matchview.full_url }}" target="_blank">{{ matchview.title[:60] }}</a></td>
+      <td>{{ matchview.match_name }}</td>
+      <td>{{ matchview.match_value }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+{% endblock %}

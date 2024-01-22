@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from .api_handler import APIHandler
 from .runtime import Runtime
 
 # Setup runtime
@@ -17,7 +18,10 @@ runtime.set_database(runtime.get_config().database_file)
 # Setup API and templates
 routes = FastAPI(title="wypt api", version="1")
 routes.mount("/static", StaticFiles(directory="static"), name="static")
+
 template = Jinja2Templates(directory="template")
+
+api_handler = APIHandler(runtime.get_database())
 
 
 @routes.get("/favicon.ico", include_in_schema=False)
@@ -35,3 +39,14 @@ def index(request: Request) -> HTMLResponse:
 def gridsample(request: Request) -> HTMLResponse:
     """Sample grid layout page."""
     return template.TemplateResponse(request, "gridsample.html")
+
+
+@routes.get("/matchview")
+def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLResponse:
+    """Main view for MatchView model."""
+
+    context = {
+        "matchviews": api_handler.get_matchview(limit, offset),
+    }
+
+    return template.TemplateResponse(request, "matchview/index.html", context)
