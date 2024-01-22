@@ -143,7 +143,6 @@ class MatchView:
 
     key: str
     date: str
-    expire: str
     title: str
     full_url: str
     match_name: str
