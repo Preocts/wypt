@@ -5,6 +5,7 @@ import logging
 from typing import Any
 
 from .database import Database as _Database
+from .model import MatchView
 
 
 class APIHandler:
@@ -26,6 +27,10 @@ class APIHandler:
             "rows": [row.to_dict() for row in rows],
             "next": next_,
         }
+
+    def get_matchview(self, limit: int = 100, offset: int = 0) -> list[MatchView]:
+        """Get a list of MatchView objects for rendering."""
+        return self._database.get_match_views(limit, offset)
 
     def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
         """Delete selected rows from table. Always returns empty response. (204)"""
