@@ -1,0 +1,46 @@
+<div class="span2">
+  {% if previous_params %}
+  <a href="/matchview?{{ previous_params }}">Previous</a>
+  {% endif %}
+</div>
+<div class="span8"></div>
+<div class="span2">
+  {% if next_params %}
+  <a href="/matchview?{{ next_params }}">Next</a>
+  {% endif %}
+</div>
+<div class="span12">
+  <table>
+    <tr>
+      <th>date</th>
+      <th>title</th>
+      <th>match_name</th>
+      <th>match_value</th>
+    </tr>
+    {% if matchviews %}
+      {% for matchview in matchviews %}
+      <tr>
+        <td>{{ matchview.date }}</td>
+        <td><a href="{{ matchview.full_url }}" target="_blank">{{ matchview.title[:60] }}</a></td>
+        <td>{{ matchview.match_name }}</td>
+        <td>{{ matchview.match_value }}</td>
+      </tr>
+      {% endfor %}
+    {% else %}
+      <tr>
+        <td colspan="4">No matchviews found</td>
+      </tr>
+    {% endif %}
+  </table>
+</div>
+<div class="span2">
+  {% if previous_params %}
+  <a href="/matchview?{{ previous_params }}">Previous</a>
+  {% endif %}
+</div>
+<div class="span8"></div>
+<div class="span2">
+  {% if next_params %}
+  <a href="/matchview?{{ next_params }}">Next</a>
+  {% endif %}
+</div>
