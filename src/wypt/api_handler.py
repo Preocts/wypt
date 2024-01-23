@@ -32,6 +32,24 @@ class APIHandler:
         """Get a list of MatchView objects for rendering."""
         return self._database.get_match_views(limit, offset)
 
+    def get_matchview_params(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> tuple[str, str]:
+        """Get the previous and next params for table pagination."""
+        total_rows = self._database.match_count()
+        previous_page = ""
+        next_page = ""
+
+        if (offset - limit) >= 0:
+            previous_page = f"limit={limit}&offset={offset - limit}"
+
+        if (limit + offset) < total_rows:
+            next_page = f"limit={limit}&offset={offset + limit}"
+
+        return previous_page, next_page
+
     def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
         """Delete selected rows from table. Always returns empty response. (204)"""
         key_lst = self._clean_split(keys)
