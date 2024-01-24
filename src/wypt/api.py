@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from . import _filters
 from .api_handler import APIHandler
 from .runtime import Runtime
 
@@ -20,6 +21,7 @@ routes = FastAPI(title="wypt api", version="1")
 routes.mount("/static", StaticFiles(directory="static"), name="static")
 
 template = Jinja2Templates(directory="template")
+_filters.apply_filters(template)
 
 api_handler = APIHandler(runtime.get_database())
 
