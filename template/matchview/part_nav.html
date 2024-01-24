@@ -1,0 +1,15 @@
+<div class="span2">
+  {% if previous_params %}
+    <div class="nav-button" hx-get="/matchviewtable?{{ previous_params }}" hx-trigger="click" hx-target="#matchview-table">Previous</div>
+  {% else %}
+    <div class="nav-button-disabled">Previous</div>
+  {% endif %}
+</div>
+<div class="span8"></div>
+<div class="span2">
+  {% if next_params %}
+    <div class="nav-button" hx-get="/matchviewtable?{{ next_params }}" hx-trigger="click" hx-target="#matchview-table">Next</div>
+  {% else %}
+    <div class="nav-button-disabled">Next</div>
+  {% endif %}
+</div>

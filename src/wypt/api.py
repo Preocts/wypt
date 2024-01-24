@@ -52,3 +52,20 @@ def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLR
     }
 
     return template.TemplateResponse(request, "matchview/index.html", context)
+
+
+@routes.get("/matchviewtable")
+def matchview_table(
+    request: Request,
+    limit: int = 100,
+    offset: int = 0,
+) -> HTMLResponse:
+    """Main view for MatchView model."""
+    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
+    context = {
+        "previous_params": previous_params,
+        "next_params": next_params,
+        "matchviews": api_handler.get_matchview(limit, offset),
+    }
+
+    return template.TemplateResponse(request, "matchview/part_table.html", context)

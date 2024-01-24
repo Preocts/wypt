@@ -31,3 +31,32 @@ tr:nth-child(even) {
 tr:hover {
   background-color: #dddddd;
 }
+
+.nav-button {
+  padding: 10px 20px;
+  margin: 10px 10px;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.nav-button-disabled {
+  padding: 10px 20px;
+  margin: 10px 10px;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  background-color: #cccccc;
+  color: #000000;
+  text-align: center;
+  font-size: 18px;
+  cursor: not-allowed;
+}
