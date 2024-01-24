@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from . import _filters
 from .api_handler import APIHandler
 from .runtime import Runtime
 
@@ -20,6 +21,7 @@ routes = FastAPI(title="wypt api", version="1")
 routes.mount("/static", StaticFiles(directory="static"), name="static")
 
 template = Jinja2Templates(directory="template")
+_filters.apply_filters(template)
 
 api_handler = APIHandler(runtime.get_database())
 
@@ -52,3 +54,20 @@ def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLR
     }
 
     return template.TemplateResponse(request, "matchview/index.html", context)
+
+
+@routes.get("/matchviewtable")
+def matchview_table(
+    request: Request,
+    limit: int = 100,
+    offset: int = 0,
+) -> HTMLResponse:
+    """Main view for MatchView model."""
+    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
+    context = {
+        "previous_params": previous_params,
+        "next_params": next_params,
+        "matchviews": api_handler.get_matchview(limit, offset),
+    }
+
+    return template.TemplateResponse(request, "matchview/part_table.html", context)

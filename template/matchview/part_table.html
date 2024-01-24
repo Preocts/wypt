@@ -1,0 +1,32 @@
+<div id="matchview-table" class="grid-lg span12" hx-swap="innerHTML">
+  {% include 'matchview/part_nav.html' with context %}
+  <div class="span12">
+    <table>
+      <tr>
+        <th>date</th>
+        <th>title</th>
+        <th>match_name</th>
+        <th>match_value</th>
+      </tr>
+      {% if matchviews %}
+        {% for matchview in matchviews %}
+        <tr>
+          <td>{{ matchview.date | to_datetime }}</td>
+          {% if matchview.title %}
+            <td><a href="{{ matchview.full_url }}" target="_blank">{{ matchview.title[:60] }}</a></td>
+          {% else %}
+            <td><a href="{{ matchview.full_url }}" target="_blank">~Untitled~</a></td>
+          {% endif %}
+          <td>{{ matchview.match_name }}</td>
+          <td>{{ matchview.match_value }}</td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td colspan="4">No matchviews found</td>
+        </tr>
+      {% endif %}
+    </table>
+  </div>
+  {% include 'matchview/part_nav.html' with context %}
+</div>

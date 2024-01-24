@@ -7,3 +7,56 @@ body {
   padding: 0;
   color: #000000;
 }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th,
+td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(odd) {
+  background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+tr:hover {
+  background-color: #dddddd;
+}
+
+.nav-button {
+  padding: 10px 20px;
+  margin: 10px 10px;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  background-color: #ffffff;
+  color: #000000;
+  text-align: center;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.nav-button-disabled {
+  padding: 10px 20px;
+  margin: 10px 10px;
+  border: 1px solid #000000;
+  border-radius: 15px;
+  background-color: #cccccc;
+  color: #000000;
+  text-align: center;
+  font-size: 18px;
+  cursor: not-allowed;
+}

@@ -39,3 +39,9 @@ def test_route_matchview_main() -> None:
     result = api_module.matchview_main(MagicMock(), 420, 69)
 
     assert result.media_type == "text/html"
+
+
+def test_route_matchview_table() -> None:
+    result = api_module.matchview_table(MagicMock(), 420, 69)
+
+    assert result.media_type == "text/html"
