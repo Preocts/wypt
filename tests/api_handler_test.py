@@ -75,3 +75,17 @@ def test_get_matchview_links_has_previous(handler: APIHandler) -> None:
 
     assert previous_page == "limit=1&offset=0"
     assert next_page == ""
+
+
+def test_get_matchview_pages_total_pages(handler: APIHandler) -> None:
+    current, total = handler.get_matchview_pages(1, 0)
+
+    assert current == "1"
+    assert total == "2"
+
+
+def test_get_matchview_current_page(handler: APIHandler) -> None:
+    current, total = handler.get_matchview_pages(1, 1)
+
+    assert current == "2"
+    assert total == "2"

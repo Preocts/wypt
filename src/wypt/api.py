@@ -46,14 +46,7 @@ def gridsample(request: Request) -> HTMLResponse:
 @routes.get("/matchview")
 def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLResponse:
     """Main view for MatchView model."""
-    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
-    context = {
-        "previous_params": previous_params,
-        "next_params": next_params,
-        "matchviews": api_handler.get_matchview(limit, offset),
-    }
-
-    return template.TemplateResponse(request, "matchview/index.html", context)
+    return template.TemplateResponse(request, "matchview/index.html")
 
 
 @routes.get("/matchviewtable")
@@ -64,9 +57,12 @@ def matchview_table(
 ) -> HTMLResponse:
     """Main view for MatchView model."""
     previous_params, next_params = api_handler.get_matchview_params(limit, offset)
+    current, total = api_handler.get_matchview_pages(limit, offset)
     context = {
         "previous_params": previous_params,
         "next_params": next_params,
+        "current_page": current,
+        "total_pages": total,
         "matchviews": api_handler.get_matchview(limit, offset),
     }
 

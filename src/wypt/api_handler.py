@@ -50,6 +50,23 @@ class APIHandler:
 
         return previous_page, next_page
 
+    def get_matchview_pages(
+        self,
+        limit: int = 100,
+        offset: int = 0,
+    ) -> tuple[str, str]:
+        """Get the current page and total pages."""
+        row_count = self._database.match_count()
+        limit = limit if limit else 1
+
+        total_pages = row_count // limit
+        total_pages = total_pages + 1 if row_count % limit else total_pages
+
+        current_page = (offset // limit) + 1
+        print(f"{total_pages=}, {current_page=}")
+
+        return str(current_page), str(total_pages)
+
     def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
         """Delete selected rows from table. Always returns empty response. (204)"""
         key_lst = self._clean_split(keys)
