@@ -5,7 +5,9 @@
     <div class="nav-button-disabled">Previous</div>
   {% endif %}
 </div>
-<div class="span8"></div>
+<div class="span8">
+  <h3>Page {{ current_page }} of {{ total_pages }}</h3>
+</div>
 <div class="span2">
   {% if next_params %}
     <div class="nav-button" hx-get="/matchviewtable?{{ next_params }}" hx-trigger="click" hx-target="#matchview-table">Next</div>
