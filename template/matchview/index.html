@@ -5,6 +5,8 @@
   <div class="span12">
     <h1>Match Table</h1>
   </div>
-  {% include 'matchview/part_table.html' with context %}
+  <div class="span12" hx-swap="outerHTML" hx-trigger="load" hx-get="/matchviewtable">
+    <h1>...</h1>
+  </div>
 </div>
 {% endblock %}
