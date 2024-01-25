@@ -58,7 +58,10 @@ class APIHandler:
         """Get the current page and total pages."""
         row_count = self._database.match_count()
         limit = limit if limit else 1
+
         total_pages = row_count // limit
+        total_pages = total_pages + 1 if row_count % limit else total_pages
+
         current_page = (offset // limit) + 1
         print(f"{total_pages=}, {current_page=}")
 
