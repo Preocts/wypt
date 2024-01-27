@@ -61,22 +61,43 @@ def matchview_table(
     limit: int = 100,
     offset: int = 0,
 ) -> HTMLResponse:
-    """Main view for MatchView model."""
-    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
-    current, total = api_handler.get_matchview_pages(limit, offset)
+    """Render table partial for MatchView"""
 
-    headers = {"HX-Push-Url": f"/matchview?limit={limit}&offset={offset}"}
     context = {
-        "previous_params": previous_params,
-        "next_params": next_params,
-        "current_page": current,
-        "total_pages": total,
         "matchviews": api_handler.get_matchview(limit, offset),
     }
 
     return template.TemplateResponse(
         request=request,
         name="matchview/part_table.html",
+        context=context,
+    )
+
+
+@routes.get("/matchviewnav")
+def matchview_nav(
+    request: Request,
+    limit: int = 100,
+    offset: int = 0,
+) -> HTMLResponse:
+    """Render navigation partial for MatchView"""
+    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
+    current, total = api_handler.get_matchview_pages(limit, offset)
+
+    headers = {
+        "HX-Push-Url": f"/matchview?limit={limit}&offset={offset}",
+        "HX-Trigger": "redrawTable",
+    }
+    context = {
+        "previous_params": previous_params,
+        "next_params": next_params,
+        "current_page": current,
+        "total_pages": total,
+    }
+
+    return template.TemplateResponse(
+        request=request,
+        name="matchview/part_nav.html",
         context=context,
         headers=headers,
     )
