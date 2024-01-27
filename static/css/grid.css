@@ -3,7 +3,6 @@
   display: grid;
   grid-template-columns: 250px auto;
   grid-template-rows: 50px auto 50px;
-  gap: 12px;
 }
 
 /* A 12xN grid layout */
@@ -11,6 +10,11 @@
   display: grid;
   grid-template-columns: repeat(12, auto);
   gap: 12px;
+}
+
+.grid-inner {
+  display: grid;
+  grid-template-columns: subgrid;
 }
 
 .solid-border {
