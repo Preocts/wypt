@@ -46,7 +46,13 @@ def gridsample(request: Request) -> HTMLResponse:
 @routes.get("/matchview")
 def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLResponse:
     """Main view for MatchView model."""
-    return template.TemplateResponse(request, "matchview/index.html")
+    headers = {"HX-Push-Url": f"/matchview?limit={limit}&offset={offset}"}
+
+    return template.TemplateResponse(
+        request=request,
+        name="matchview/index.html",
+        headers=headers,
+    )
 
 
 @routes.get("/matchviewtable")
@@ -58,6 +64,8 @@ def matchview_table(
     """Main view for MatchView model."""
     previous_params, next_params = api_handler.get_matchview_params(limit, offset)
     current, total = api_handler.get_matchview_pages(limit, offset)
+
+    headers = {"HX-Push-Url": f"/matchview?limit={limit}&offset={offset}"}
     context = {
         "previous_params": previous_params,
         "next_params": next_params,
@@ -66,4 +74,9 @@ def matchview_table(
         "matchviews": api_handler.get_matchview(limit, offset),
     }
 
-    return template.TemplateResponse(request, "matchview/part_table.html", context)
+    return template.TemplateResponse(
+        request=request,
+        name="matchview/part_table.html",
+        context=context,
+        headers=headers,
+    )

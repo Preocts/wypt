@@ -63,7 +63,6 @@ class APIHandler:
         total_pages = total_pages + 1 if row_count % limit else total_pages
 
         current_page = (offset // limit) + 1
-        print(f"{total_pages=}, {current_page=}")
 
         return str(current_page), str(total_pages)
 
