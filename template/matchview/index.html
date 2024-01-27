@@ -2,11 +2,15 @@
 {% block title %}WYPT Match Table{% endblock %}
 {% block content %}
 <div class="grid-lg">
-  <div class="span12">
-    <h1>Match Table</h1>
+  <div class="span2"></div>
+  <div class="span8">
+    <h1 class="center larger">Match Table</h1>
   </div>
+  <div class="span2"></div>
+
   <div class="span12" hx-swap="outerHTML" hx-trigger="load" hx-get="/matchviewtable">
-    <h1>...</h1>
+    <h1 class="larger center">...</h1>
   </div>
 </div>
+
 {% endblock %}
