@@ -24,7 +24,9 @@ def test_insert_many_meta_rows_ignores_constraint_errors(db: Database) -> None:
     db.insert_metas(META_ROWS)
     db.insert_metas(META_ROWS)
 
-    assert db.row_count("meta") == len(META_ROWS)
+    row_count = db._dbconn.execute("SELECT count(*) FROM meta").fetchone()[0]
+
+    assert row_count == len(META_ROWS)
 
 
 def test_insert_many_match_rows_ignores_constraint_errors(db: Database) -> None:
@@ -32,7 +34,9 @@ def test_insert_many_match_rows_ignores_constraint_errors(db: Database) -> None:
     db.insert_matches(MATCH_ROWS)
     db.insert_matches(MATCH_ROWS)
 
-    assert db.row_count("match") == len(MATCH_ROWS)
+    row_count = db._dbconn.execute("SELECT count(*) FROM match").fetchone()[0]
+
+    assert row_count == len(MATCH_ROWS)
 
 
 def test_insert_one_paste_row_ignores_constraint_errors(db: Database) -> None:
@@ -40,7 +44,9 @@ def test_insert_one_paste_row_ignores_constraint_errors(db: Database) -> None:
     db.insert_paste(PASTE_ROWS[0])
     db.insert_paste(PASTE_ROWS[0])
 
-    assert db.row_count("paste") == 1
+    row_count = db._dbconn.execute("SELECT count(*) FROM paste").fetchone()[0]
+
+    assert row_count == 1
 
 
 def test_get_keys_to_pul(db: Database) -> None:
@@ -54,17 +60,6 @@ def test_get_keys_to_pul(db: Database) -> None:
 
     assert META_ROWS[0].key not in results
     assert len(results) == len(META_ROWS) - 1
-
-
-def test_table_guard_raises(db: Database) -> None:
-    with pytest.raises(KeyError):
-        db._table_guard("nothere")
-
-
-def test_max_id(mock_database: Database) -> None:
-    result = mock_database.max_id("paste")
-
-    assert result == len(PASTE_ROWS)
 
 
 def test_get_match_views(mock_database: Database) -> None:

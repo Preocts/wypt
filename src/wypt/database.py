@@ -7,7 +7,6 @@ from contextlib import closing
 from contextlib import contextmanager
 from sqlite3 import Connection
 from sqlite3 import Cursor
-from typing import NoReturn
 
 from wypt import model
 
@@ -35,20 +34,6 @@ class Database:
         with closing(self._dbconn.cursor()) as cursor:
             query = cursor.execute("SELECT count(key) FROM match;")
             return query.fetchone()[0]
-
-    def row_count(self, table: str) -> int:
-        """Current count of rows in table."""
-        self._table_guard(table)
-        with self.cursor() as cursor:
-            query = cursor.execute(f"SELECT count(*) FROM {table}")
-            return query.fetchone()[0]
-
-    def max_id(self, table: str) -> int:
-        """Current max row_id in table."""
-        self._table_guard(table)
-        with self.cursor() as cursor:
-            query = cursor.execute(f"SELECT max(rowid) FROM {table}")
-            return query.fetchone()[0] or 0
 
     @contextmanager
     def cursor(self, *, commit_on_exit: bool = False) -> Generator[Cursor, None, None]:
@@ -193,10 +178,3 @@ class Database:
             rows = cursor.fetchall()
 
         return [row[0] for row in rows]
-
-    def _table_guard(self, table: str) -> None | NoReturn:
-        """Raise KeyError if table name has not been added to class."""
-        if table not in self._tables:
-            raise KeyError(f"Invalid table '{table}' provided.")
-
-        return None
