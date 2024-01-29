@@ -43,14 +43,14 @@ def test_insert_one_paste_row_ignores_constraint_errors(db: Database) -> None:
     assert db.row_count("paste") == 1
 
 
-def test_metadb_get_keys_to_fetch(db: Database) -> None:
+def test_get_keys_to_pul(db: Database) -> None:
     # Setup two databases with mock data. Results should expect
     # all keys of meta fixture to be returns sans 0th index key.
     paste = Paste(META_ROWS[0].key, "")
     db.insert_metas(META_ROWS)
     db.insert_paste(paste)
 
-    results = db.get_difference("meta", "paste", limit=100)
+    results = db.get_keys_to_pull()
 
     assert META_ROWS[0].key not in results
     assert len(results) == len(META_ROWS) - 1

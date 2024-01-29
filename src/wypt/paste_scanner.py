@@ -11,6 +11,8 @@ from .model import Paste
 from .pastebin_api import PastebinAPI as _PastebinAPI
 from .pattern_config import PatternConfig as _PatternConfig
 
+PULL_PASTE_LIMIT = 100
+
 
 class PasteScanner:
     """Gather and scan paste data from pastebin."""
@@ -108,5 +110,5 @@ class PasteScanner:
 
     def _hydrate_to_pull(self) -> None:
         """Hydrate list of keys remaining to be pulled and scanned if empty."""
-        self._to_pull = self._database.get_difference("meta", "paste", limit=100)
+        self._to_pull = self._database.get_keys_to_pull(limit=PULL_PASTE_LIMIT)
         self.logger.info("Hydration created %d keys to pull.", len(self._to_pull))

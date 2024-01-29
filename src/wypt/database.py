@@ -176,35 +176,23 @@ class Database:
             for row in rows
         ]
 
-    def get_difference(
-        self,
-        left_table: str,
-        right_table: str,
-        limit: int = 25,
-    ) -> list[str]:
+    def get_keys_to_pull(self, limit: int = 25) -> list[str]:
+        """Return keys from meta table that have not been pulled into paste table."""
+        sql = """\
+            SELECT
+                meta.key
+            FROM
+                meta
+                LEFT JOIN paste ON paste.key = meta.key
+            WHERE
+                paste.key IS NULL
+            LIMIT ?;
         """
-        Return the difference of `key` values on left table against right table.
-
-        NOTE: Can return less than `limit` or empty results.
-
-        Args:
-            left_table: Base table for query (has the values to find)
-            right_table: table to join and compare against (missing values to find)
-        """
-        self._table_guard(left_table)
-        self._table_guard(right_table)
-
-        sql = (
-            f"SELECT a.key FROM {left_table} a "
-            f"LEFT JOIN {right_table} b "
-            f"ON a.key = b.key WHERE b.key IS NULL LIMIT ?"
-        )
-
-        with self.cursor() as cursor:
+        with closing(self._dbconn.cursor()) as cursor:
             cursor.execute(sql, (limit,))
-            results = cursor.fetchall()
+            rows = cursor.fetchall()
 
-        return [r[0] for r in results]
+        return [row[0] for row in rows]
 
     def _table_guard(self, table: str) -> None | NoReturn:
         """Raise KeyError if table name has not been added to class."""
