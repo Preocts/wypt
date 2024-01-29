@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
 
 from .database import Database as _Database
 from .model import MatchView
@@ -14,19 +13,6 @@ class APIHandler:
     def __init__(self, database: _Database) -> None:
         """Initialize API handler."""
         self._database = database
-
-    def get_table_dct(
-        self,
-        table: str,
-        next_: str | None,
-        limit: int = 100,
-    ) -> dict[str, Any]:
-        """Get selected table, up to 100 rows, as dictionary."""
-        rows, next_ = self._database.get(table, next_, limit=limit)
-        return {
-            "rows": [row.to_dict() for row in rows],
-            "next": next_,
-        }
 
     def get_matchview(self, limit: int = 100, offset: int = 0) -> list[MatchView]:
         """Get a list of MatchView objects for rendering."""
@@ -65,12 +51,6 @@ class APIHandler:
         current_page = (offset // limit) + 1
 
         return str(current_page), str(total_pages)
-
-    def delete_table_rows(self, table: str, keys: str) -> dict[str, Any]:
-        """Delete selected rows from table. Always returns empty response. (204)"""
-        key_lst = self._clean_split(keys)
-        self._database.delete_many(table, key_lst)
-        return {}
 
     @staticmethod
     def _clean_split(text: str, delimiter: str = ",") -> list[str]:

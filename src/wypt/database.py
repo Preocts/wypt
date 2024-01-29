@@ -8,7 +8,6 @@ from contextlib import contextmanager
 from sqlite3 import Connection
 from sqlite3 import Cursor
 from typing import NoReturn
-from uuid import uuid4
 
 from wypt import model
 
@@ -177,47 +176,6 @@ class Database:
             for row in rows
         ]
 
-    def get(
-        self,
-        table: str,
-        next_: str | None = None,
-        *,
-        limit: int = 100,
-    ) -> tuple[list[model.BaseModel], str | None]:
-        """
-        Get rows starting at idx stored next counter or 0 if not provided.
-
-        `next_` is expected to be a UUID used as a lookup for return next
-        values in database.
-
-        Returns:
-            list[model.BaseModel],
-            string UUID or None if there are more results to pull
-        """
-        self._table_guard(table)
-        last_row = self._nexts.get(next_, 0) if next_ else 0
-        next_uuid: str | None = None
-        self._nexts.pop(next_ or "", None)
-
-        sql = f"SELECT *, rowid FROM {table} WHERE rowid > ? LIMIT ?"
-
-        with self.cursor() as cursor:
-            cursor.execute(sql, (last_row, limit))
-
-            rows = cursor.fetchall()
-
-        results: list[model.BaseModel] = []
-        for row in rows:
-            row_lst = list(row)
-            last_row = row_lst.pop()
-            results.append(self._tables[table](*row_lst))
-
-        if last_row < self.max_id(table):
-            next_uuid = str(uuid4())
-            self._nexts[next_uuid] = last_row
-
-        return results, next_uuid
-
     def get_difference(
         self,
         left_table: str,
@@ -247,32 +205,6 @@ class Database:
             results = cursor.fetchall()
 
         return [r[0] for r in results]
-
-    def delete(self, table: str, key: str) -> None:
-        """
-        Delete a row from the given table by their key.
-
-        Args:
-            table: Name of the table
-            key: list of keys to delete
-        """
-        self.delete_many(table, [key])
-
-    def delete_many(self, table: str, keys: list[str]) -> None:
-        """
-        Delete a list of rows from the given table by their key.
-
-        Args:
-            table: Name of the table
-            key: list of keys to delete
-        """
-        self._table_guard(table)
-
-        sql = f"DELETE FROM {table} WHERE key=?"
-        values = [[key] for key in keys]
-
-        with self.cursor(commit_on_exit=True) as cursor:
-            cursor.executemany(sql, values)
 
     def _table_guard(self, table: str) -> None | NoReturn:
         """Raise KeyError if table name has not been added to class."""

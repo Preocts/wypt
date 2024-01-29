@@ -67,42 +67,6 @@ def test_max_id(mock_database: Database) -> None:
     assert result == len(PASTE_ROWS)
 
 
-def test_get_returns_uuid_and_paginate_token_functions(db: Database) -> None:
-    # We are testing that we can limit a table of 2 rows to a single
-    # row return value. We also take the uuid for that pagination and
-    # assert we get row 2 of 2 with it.
-    for paste in PASTE_ROWS:
-        db.insert_paste(paste)
-
-    row01, uuid01 = db.get("paste", limit=1)
-    row02, uuid02 = db.get("paste", uuid01)
-
-    assert len(row01) == 1
-    assert len(row02) == 1
-    assert row01[0] == PASTE_ROWS[0]
-    assert row02[0] == PASTE_ROWS[1]
-    assert uuid02 is None
-
-
-def test_delete_many(mock_database: Database) -> None:
-    rows, _ = mock_database.get("paste")
-    keys = [row.key for row in rows]
-
-    mock_database.delete_many("paste", keys)
-    validate = mock_database.row_count("paste")
-
-    assert rows
-    assert validate == 0
-
-
-def test_delete_one(mock_database: Database) -> None:
-    rows, _ = mock_database.get("paste")
-
-    mock_database.delete("paste", rows[0].key)
-
-    assert len(rows) - mock_database.row_count("paste") == 1
-
-
 def test_get_match_views(mock_database: Database) -> None:
     rows = mock_database.get_match_views()
 
