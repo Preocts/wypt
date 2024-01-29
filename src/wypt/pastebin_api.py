@@ -8,6 +8,7 @@ Scraping endpoints of pastebin do not, generally, return error statuses
 even on invalid requests. Due to this, any error status will raise a
 ResponseError exception.
 """
+
 from __future__ import annotations
 
 import json

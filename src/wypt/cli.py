@@ -1,4 +1,5 @@
 """WIP - Placeholder for CLI interface."""
+
 from __future__ import annotations
 
 from .paste_scanner import PasteScanner

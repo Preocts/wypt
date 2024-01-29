@@ -1,4 +1,5 @@
 """Custom exceptions for project."""
+
 from __future__ import annotations
 
 import time

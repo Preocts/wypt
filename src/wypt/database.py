@@ -1,4 +1,5 @@
 """Read/Write actions to the sqlite3 database."""
+
 from __future__ import annotations
 
 from collections.abc import Generator

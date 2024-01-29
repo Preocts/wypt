@@ -1,4 +1,5 @@
 """Data models for API responses."""
+
 from __future__ import annotations
 
 import dataclasses
