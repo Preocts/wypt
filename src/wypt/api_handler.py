@@ -1,4 +1,5 @@
 """Process requetss from API and return results."""
+
 from __future__ import annotations
 
 import logging

@@ -1,6 +1,7 @@
 """
 Gather and scan paste data from pastebin.
 """
+
 from __future__ import annotations
 
 import logging
