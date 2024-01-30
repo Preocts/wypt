@@ -1,4 +1,5 @@
 """Scan a string for patterns of interest."""
+
 from __future__ import annotations
 
 import logging

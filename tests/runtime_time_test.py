@@ -6,8 +6,8 @@ import pytest
 
 from wypt.database import Database
 from wypt.pattern_config import PatternConfig
-from wypt.runtime import _Config
 from wypt.runtime import Runtime
+from wypt.runtime import _Config
 
 TEST_CONFIG = "tests/fixture/wypt.toml"
 TEST_PATTERNS = {"Basic Email", "Broken Pattern", "Discord Webhook", "JWT Token"}
