@@ -1,6 +1,27 @@
 table {
   border-collapse: collapse;
   width: 100%;
+  margin: 1em auto;
+}
+
+.colwidth10 {
+  width: 10%;
+}
+
+.colwidth20 {
+  width: 20%;
+}
+
+.colwidth30 {
+  width: 30%;
+}
+
+.colwidth40 {
+  width: 40%;
+}
+
+.colwidth50 {
+  width: 50%;
 }
 
 th,

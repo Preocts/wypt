@@ -8,6 +8,11 @@ body {
   color: #000000;
 }
 
+.container {
+  margin: 0px;
+  padding: 10px;
+}
+
 .center {
   text-align: center;
 }
