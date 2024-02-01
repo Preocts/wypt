@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pytest
 
+from tests.conftest import META_ROWS
 from wypt.api_handler import APIHandler
 from wypt.database import Database
 
@@ -70,3 +71,13 @@ def test_get_matchview_current_page(handler: APIHandler) -> None:
 
     assert current == "2"
     assert total == "2"
+
+
+def test_delete_matchview(handler: APIHandler) -> None:
+    key = META_ROWS[0].key
+
+    success = handler.delete_matchview(key)
+    failure = handler.delete_matchview("")
+
+    assert success
+    assert not failure
