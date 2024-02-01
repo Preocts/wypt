@@ -55,6 +55,20 @@ def matchview_main(request: Request, limit: int = 100, offset: int = 0) -> HTMLR
     )
 
 
+@routes.delete("/matchview/{key}")
+def matchview_delete(request: Request, key: str) -> HTMLResponse:
+    """Delete MatchView record."""
+    if api_handler.delete_matchview(key):
+        return HTMLResponse(
+            status_code=204,
+            headers={
+                "HX-Trigger": "redrawTable",
+            },
+        )
+    else:
+        return HTMLResponse(status_code=404)
+
+
 @routes.get("/matchviewtable")
 def matchview_table(
     request: Request,
@@ -69,6 +83,8 @@ def matchview_table(
         "HX-Push-Url": f"/matchview?limit={limit}&offset={offset}",
     }
     context = {
+        "limit": limit,
+        "offset": offset,
         "previous_params": previous_params,
         "next_params": next_params,
         "current_page": current,
