@@ -179,3 +179,19 @@ class Database:
             rows = cursor.fetchall()
 
         return [row[0] for row in rows]
+
+    def delete_match_view(self, key: str) -> bool:
+        """Delete a MatchView record from all tables."""
+        queries = [
+            "DELETE FROM match WHERE key = ?;",
+            "DELETE FROM meta WHERE key = ?;",
+            "DELETE FROM paste WHERE key = ?;",
+        ]
+        delete_count = 0
+        with closing(self._dbconn.cursor()) as cursor:
+            for sql in queries:
+                cursor.execute(sql, (key,))
+                delete_count += cursor.rowcount
+            self._dbconn.commit()
+
+        return bool(delete_count)

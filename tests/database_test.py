@@ -85,3 +85,14 @@ def test_get_total_matches(mock_database: Database) -> None:
     count = mock_database.match_count()
 
     assert count == len(MATCH_ROWS)
+
+
+def test_delete_match_view(mock_database: Database) -> None:
+    key = MATCH_ROWS[0].key
+    result = mock_database.delete_match_view(key)
+
+    assert result
+
+    result = mock_database.delete_match_view(key)
+
+    assert not result

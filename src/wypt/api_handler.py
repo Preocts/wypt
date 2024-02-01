@@ -53,6 +53,10 @@ class APIHandler:
 
         return str(current_page), str(total_pages)
 
+    def delete_matchview(self, key: str) -> bool:
+        """Delete a MatchView record."""
+        return self._database.delete_match_view(key)
+
     @staticmethod
     def _clean_split(text: str, delimiter: str = ",") -> list[str]:
         """Split text on delimeter, strips leading/trailing whitespace."""

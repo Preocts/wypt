@@ -1,31 +1,44 @@
-<div id="matchViewTable" class="span12 grid-inner" hx-swap="innerHTML" get="/matchviewtable?limit=100&offset=100" hx-trigger="redrawTable from:body">
+<div id="matchViewTable" class="span12 grid-inner" hx-swap="innerHTML" hx-get="/matchviewtable?limit={{ limit }}&offset={{ offset }}" hx-trigger="redrawTable from:body">
+  <div class="span12">
+    <h2 class="center">{{ limit }} - {{ offset }}</h2>
+  </div>
   {% include 'matchview/part_nav.html' with context %}
   <div class="span12">
     <table>
-      <tr>
-        <th class="center">date</th>
-        <th class="center">title</th>
-        <th class="center">match_name</th>
-        <th class="center">match_value</th>
-      </tr>
-      {% if matchviews %}
-        {% for matchview in matchviews %}
-        <tr class="small">
-          <td>{{ matchview.date | to_datetime }}</td>
-          {% if matchview.title %}
-          <td><a href="{{ matchview.full_url }}" target="_blank">{{ matchview.title[:60] }}</a></td>
-          {% else %}
-          <td><a href="{{ matchview.full_url }}" target="_blank">~Untitled~</a></td>
-          {% endif %}
-          <td>{{ matchview.match_name }}</td>
-          <td>{{ matchview.match_value }}</td>
-        </tr>
-        {% endfor %}
-        {% else %}
+      <thead>
         <tr>
-          <td colspan="4">No matchviews found</td>
+          <th class="center colwidth10">Date</th>
+          <th class="center colwidth20">Title</th>
+          <th class="center colwidth10">Pattern Name</th>
+          <th class="center">Value Preview</th>
+          <th class="center" colwidth10>Delete</th>
         </tr>
-        {% endif %}
+      </thead>
+      <tbody hx-confirm="Are you sure? Deleting this row will remove all results from shared titles.">
+        {% if matchviews %}
+          {% for matchview in matchviews %}
+          <tr class="small">
+            <td>{{ matchview.date | to_datetime }}</td>
+            {% if matchview.title %}
+            <td><a href="{{ matchview.full_url }}" target="_blank">{{ matchview.title[:60] }}</a></td>
+            {% else %}
+            <td><a href="{{ matchview.full_url }}" target="_blank">~Untitled~</a></td>
+            {% endif %}
+            <td>{{ matchview.match_name }}</td>
+            <td>{{ matchview.match_value[:100] }}</td>
+            <td class="center">
+              <div>
+                <h3 class="nav-button smallest" hx-delete="/matchview/{{ matchview.key }}">X</h3>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="5" class="center large">No matchviews found</td>
+          </tr>
+          {% endif %}
+        </tbody>
       </table>
   </div>
   {% include 'matchview/part_nav.html' with context %}
