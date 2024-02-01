@@ -24,23 +24,33 @@ table {
   width: 50%;
 }
 
-th,
-td {
+thead {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+tbody th,
+tbody td {
   border: 1px solid #dddddd;
   text-align: left;
   padding: 8px;
 }
 
-tr:nth-child(odd) {
+tbody tr:nth-child(odd) {
   background-color: #ffffff;
 }
 
-tr:nth-child(even) {
+tbody tr:nth-child(even) {
   background-color: #f2f2f2;
 }
 
-tr:hover {
+tbody tr:hover {
   background-color: #dddddd;
+}
+
+a {
+  text-decoration: underline;
+  color: #000000;
 }
 
 .nav-button {
