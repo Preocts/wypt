@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from unittest.mock import patch
+
 import pytest
 
 from tests.conftest import META_ROWS
@@ -81,3 +83,27 @@ def test_delete_matchview(handler: APIHandler) -> None:
 
     assert success
     assert not failure
+
+
+def test_align_pagination_offset_underflow(handler: APIHandler) -> None:
+    limit, offset = handler.align_pagination(0, -1)
+
+    assert limit == 1
+    assert offset == 0
+
+
+def test_align_pagination_keeps_expected_offset_step(handler: APIHandler) -> None:
+    with patch.object(handler._database, "match_count", return_value=345):
+        limit, offset = handler.align_pagination(100, 900)
+
+    assert limit == 100
+    assert offset == 300
+
+
+def test_align_pagination_handles_perfect_division(handler: APIHandler) -> None:
+    # Edge case where the offset is exactly beyond the last page
+    with patch.object(handler._database, "match_count", return_value=2900):
+        limit, offset = handler.align_pagination(100, 3000)
+
+    assert limit == 100
+    assert offset == 2800

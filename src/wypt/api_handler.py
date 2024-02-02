@@ -15,6 +15,28 @@ class APIHandler:
         """Initialize API handler."""
         self._database = database
 
+    def align_pagination(self, limit: int, offset: int) -> tuple[int, int]:
+        """
+        Align limit and offset to valid values.
+
+        If limit is less than 1, set to 1.
+        If offset is less than 0, set to 0.
+
+        if offset is greater than the number of records, set to the last page.
+        """
+        limit = limit if limit > 0 else 1
+        offset = offset if offset > 0 else 0
+
+        row_count = self._database.match_count()
+
+        if offset > row_count:
+            offset = row_count // limit * limit
+
+        if offset == row_count:
+            offset = row_count - limit
+
+        return limit, offset
+
     def get_matchview(self, limit: int = 100, offset: int = 0) -> list[MatchView]:
         """Get a list of MatchView objects for rendering."""
         return self._database.get_match_views(limit, offset)
