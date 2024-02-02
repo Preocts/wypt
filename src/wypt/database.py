@@ -16,15 +16,10 @@ class Database:
     def __init__(self, database_connection: Connection) -> None:
         """Read/Write actions to the sqlite3 database."""
         self._dbconn = database_connection
-        self._tables: dict[str, type[model.BaseModel]] = {}
         self._nexts: dict[str, int] = {}
 
     def init_tables(self) -> None:
         """Create/Add defined tables to the database."""
-        self._tables["paste"] = model.Paste
-        self._tables["meta"] = model.Meta
-        self._tables["match"] = model.Match
-
         with self.cursor(commit_on_exit=True) as cursor:
             cursor.executescript(model.Paste.as_sql())
             cursor.executescript(model.Meta.as_sql())
