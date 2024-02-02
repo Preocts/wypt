@@ -141,3 +141,15 @@ class MatchView(Serializable):
     full_url: str
     match_name: str
     match_value: str
+
+
+@dataclasses.dataclass(frozen=True)
+class MatchViewContext(Serializable):
+    """Jinja2 context for rendering match views."""
+
+    limit: int
+    offset: int
+    current_page: int
+    total_pages: int
+    total_rows: int
+    matchviews: list[MatchView]
