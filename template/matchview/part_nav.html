@@ -1,6 +1,6 @@
 <div class="span2">
-  {% if previous_params %}
-    <div class="nav-button small center" hx-get="/matchviewtable?{{ previous_params }}" hx-trigger="click" hx-target="#matchViewTable">Previous</div>
+  {% if offset - limit >= 0 %}
+    <div class="nav-button small center" hx-get="/matchviewtable?limit={{ limit }}&offset={{ offset - limit }}" hx-trigger="click" hx-target="#matchViewTable">Previous</div>
   {% else %}
     <div class="nav-button-disabled small center">Previous</div>
   {% endif %}
@@ -9,8 +9,8 @@
   <h3 class="small center">Page {{ current_page }} of {{ total_pages }}</h3>
 </div>
 <div class="span2">
-  {% if next_params %}
-    <div class="nav-button small center" hx-get="/matchviewtable?{{ next_params }}" hx-trigger="click" hx-target="#matchViewTable">Next</div>
+  {% if limit + offset < total_rows %}
+    <div class="nav-button small center" hx-get="/matchviewtable?{{ limit }}&offset={{ offset + limit }}" hx-trigger="click" hx-target="#matchViewTable">Next</div>
   {% else %}
     <div class="nav-button-disabled small center">Next</div>
   {% endif %}

@@ -1,7 +1,4 @@
 <div id="matchViewTable" class="span12 grid-inner" hx-swap="outerHTML" hx-get="/matchviewtable?limit={{ limit }}&offset={{ offset }}" hx-trigger="redrawTable from:body">
-  <div class="span12">
-    <h2 class="center">{{ limit }} - {{ offset }}</h2>
-  </div>
   {% include 'matchview/part_nav.html' with context %}
   <div class="span12">
     <table>

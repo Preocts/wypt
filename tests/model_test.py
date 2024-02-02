@@ -6,10 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from wypt.model import BaseModel
 from wypt.model import Match
 from wypt.model import Meta
 from wypt.model import Paste
+from wypt.model import Serializable
 
 
 @pytest.mark.parametrize(
@@ -20,7 +20,7 @@ from wypt.model import Paste
         ("tests/fixture/match.json", Match),
     ),
 )
-def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> None:
+def test_model_create_and_deconstruct(fixture: str, model: type[Serializable]) -> None:
     resps = json.loads(Path(fixture).read_text())
 
     for resp in resps:
@@ -42,7 +42,7 @@ def test_model_create_and_deconstruct(fixture: str, model: type[BaseModel]) -> N
         Meta("tst", "tst", "tst", "0", "0", "0", "tst", "tst", "tst", "0"),
     ),
 )
-def test_model_str(model: BaseModel) -> None:
+def test_model_str(model: Serializable) -> None:
     result = str(model)
 
     # TODO: LOL? Why are all the __str__ attributes required to be 79 characters?

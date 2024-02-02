@@ -4,7 +4,6 @@ from unittest.mock import patch
 
 import pytest
 
-from tests.conftest import META_ROWS
 from wypt.api_handler import APIHandler
 from wypt.database import Database
 
@@ -28,82 +27,35 @@ def test_clean_split(text: str, expected: list[str]) -> None:
     assert result == expected
 
 
-def test_get_matchview_has_results(handler: APIHandler) -> None:
-    results = handler.get_matchview()
-
-    assert results
-
-
-def test_Get_matchview_has_no_results(handler: APIHandler) -> None:
-    results = handler.get_matchview(0, 0)
-
-    assert not results
-
-
-def test_get_matchview_links_defaults(handler: APIHandler) -> None:
-    previous_page, next_page = handler.get_matchview_params()
-
-    assert previous_page == ""
-    assert next_page == ""
-
-
-def test_get_matchview_links_has_next(handler: APIHandler) -> None:
-    previous_page, next_page = handler.get_matchview_params(1, 0)
-
-    assert previous_page == ""
-    assert next_page == "limit=1&offset=1"
-
-
-def test_get_matchview_links_has_previous(handler: APIHandler) -> None:
-    previous_page, next_page = handler.get_matchview_params(1, 1)
-
-    assert previous_page == "limit=1&offset=0"
-    assert next_page == ""
-
-
-def test_get_matchview_pages_total_pages(handler: APIHandler) -> None:
-    current, total = handler.get_matchview_pages(1, 0)
-
-    assert current == "1"
-    assert total == "2"
-
-
-def test_get_matchview_current_page(handler: APIHandler) -> None:
-    current, total = handler.get_matchview_pages(1, 1)
-
-    assert current == "2"
-    assert total == "2"
-
-
-def test_delete_matchview(handler: APIHandler) -> None:
-    key = META_ROWS[0].key
-
-    success = handler.delete_matchview(key)
-    failure = handler.delete_matchview("")
-
-    assert success
-    assert not failure
-
-
-def test_align_pagination_offset_underflow(handler: APIHandler) -> None:
-    limit, offset = handler.align_pagination(0, -1)
-
-    assert limit == 1
-    assert offset == 0
-
-
-def test_align_pagination_keeps_expected_offset_step(handler: APIHandler) -> None:
+def test_get_matchview_content_offset_overflowed(handler: APIHandler) -> None:
     with patch.object(handler._database, "match_count", return_value=345):
-        limit, offset = handler.align_pagination(100, 900)
+        result = handler.get_matchview_context(100, 900)
 
-    assert limit == 100
-    assert offset == 300
+    assert 100 == result.limit
+    assert 300 == result.offset
+    assert 4 == result.total_pages
+    assert 4 == result.current_page
+    assert 345 == result.total_rows
+    assert not result.matchviews  # Mock database has only two rows
 
 
-def test_align_pagination_handles_perfect_division(handler: APIHandler) -> None:
-    # Edge case where the offset is exactly beyond the last page
+def test_get_matchview_content_offset_perfect_devision(handler: APIHandler) -> None:
     with patch.object(handler._database, "match_count", return_value=2900):
-        limit, offset = handler.align_pagination(100, 3000)
+        result = handler.get_matchview_context(100, 3000)
 
-    assert limit == 100
-    assert offset == 2800
+    assert 100 == result.limit
+    assert 2800 == result.offset  # Note the offset is adjusted
+    assert 29 == result.total_pages
+    assert 29 == result.current_page
+    assert 2900 == result.total_rows
+    assert not result.matchviews  # Mock database has only two rows
+
+
+def test_get_matchview_content_returns_content(handler: APIHandler) -> None:
+    result = handler.get_matchview_context(100, 0)
+
+    # Given both prior tests do not return any content, we can assert the following
+    # for confidence in the test.
+
+    assert 2 == result.total_rows
+    assert result.matchviews
