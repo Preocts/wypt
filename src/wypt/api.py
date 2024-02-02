@@ -83,26 +83,15 @@ def matchview_table(
     offset: int = 0,
 ) -> HTMLResponse:
     """Render table partial for MatchView"""
-    limit, offset = api_handler.align_pagination(limit, offset)
-    previous_params, next_params = api_handler.get_matchview_params(limit, offset)
-    current, total = api_handler.get_matchview_pages(limit, offset)
+    context = api_handler.get_matchview_context(limit, offset)
 
     headers = {
         "HX-Push-Url": f"/matchview?limit={limit}&offset={offset}",
-    }
-    context = {
-        "limit": limit,
-        "offset": offset,
-        "previous_params": previous_params,
-        "next_params": next_params,
-        "current_page": current,
-        "total_pages": total,
-        "matchviews": api_handler.get_matchview(limit, offset),
     }
 
     return template.TemplateResponse(
         request=request,
         name="matchview/part_table.html",
-        context=context,
+        context=context.to_dict(),
         headers=headers,
     )
