@@ -76,6 +76,7 @@ def matchview_table(
     offset: int = 0,
 ) -> HTMLResponse:
     """Render table partial for MatchView"""
+    limit, offset = api_handler.align_pagination(limit, offset)
     previous_params, next_params = api_handler.get_matchview_params(limit, offset)
     current, total = api_handler.get_matchview_pages(limit, offset)
 
