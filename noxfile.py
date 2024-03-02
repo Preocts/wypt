@@ -1,13 +1,18 @@
 from __future__ import annotations
 
+import os
 import pathlib
 import shutil
+import sys
 
 import nox
 
 # Control factors for finding pieces of the module
 MODULE_NAME = "wypt"
 TESTS_PATH = "tests"
+VENV_PATH = "venv"
+WINDOWS_PYTHON = "py"
+LINUX_PYTHON = "python3"
 COVERAGE_FAIL_UNDER = 95
 REQUIREMENT_IN_FILES = [
     pathlib.Path("requirements/requirements.in"),
@@ -95,6 +100,32 @@ def build(session: nox.Session) -> None:
 
     session.install("build")
     session.run("python", "-m", "build")
+
+
+@nox.session(python=False)
+def install(session: nox.Session) -> None:
+    """Setup a development environment. Uses active venv if available, builds one if not."""
+    # Use the active environement if it exists, otherwise create a new one
+    venv_path = os.environ.get("VIRTUAL_ENV", VENV_PATH)
+
+    if sys.platform == "win32":
+        py_command = "py"
+        venv_path = f"{venv_path}/Scripts"
+        activate_command = f"{venv_path}/activate"
+    else:
+        py_command = "python3"
+        venv_path = f"{venv_path}/bin"
+        activate_command = f"source {venv_path}/activate"
+
+    if not os.path.exists(VENV_PATH):
+        session.run(py_command, "-m", "venv", VENV_PATH)
+        session.run(f"{venv_path}/python", "-m", "pip", "install", "--upgrade", "pip")
+
+    session.run(f"{venv_path}/python", "-m", "pip", "install", "-e", ".[dev,test]")
+    session.run(f"{venv_path}/pre-commit", "install")
+
+    if not os.environ.get("VIRTUAL_ENV"):
+        session.log(f"\n\nRun '{activate_command}' to enter the virtual environment.\n")
 
 
 @nox.session()
